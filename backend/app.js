@@ -14,6 +14,7 @@ const allowedOrigins = [
   "https://mycozee.vercel.app/",
   "https://mycozze.vercel.app",
   "http://mycozze.in",
+  "http://mycozze.in/",
 ];
 
 // Create an HTTP server for Socket.io
