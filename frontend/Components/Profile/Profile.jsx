@@ -43,17 +43,17 @@ const Profile = ({ user }) => {
   const [open, setOpen] = useState(false);
   const [crop, setCrop] = useState({
     unit: "px",
-    x: 50,
-    y: 50,
-    width: 400,
-    height: 400,
+    x: 77.20001220703125,
+    y: 10.79998779296875,
+    width: 150,
+    height: 150,
     aspect: 1,
   });
   const [completedCrop, setCompletedCrop] = useState({
     aspect: 1,
-    height: 400,
+    height: 150,
     unit: "px",
-    width: 400,
+    width: 150,
     x: 77.20001220703125,
     y: 10.79998779296875,
   });
@@ -366,7 +366,7 @@ const Profile = ({ user }) => {
             height: "100%",
           }}
         >
-          <div className="flex flex-col bg-white p-10 items-center justify-center gap-2">
+          <div className="flex flex-col bg-white p-6 md:p-8 items-center justify-center gap-2">
             <ReactCrop
               src={selectedImage}
               crop={crop}
@@ -377,22 +377,23 @@ const Profile = ({ user }) => {
               <img
                 ref={imageRef}
                 src={selectedImage}
-                className="h-[500px] w-[600px] object-contain"
+                className="h-48 w-64 object-contain"
                 alt="Crop"
               />
             </ReactCrop>
             <div className="flex items-center gap-2">
-              <Button variant="contained" onClick={onSubmit}>
+              <button
+                className="bg-green-500 text-white max-md:px-2  py-1 md:px-4 md:py-2 rounded-xl text-sm"
+                onClick={onSubmit}
+              >
                 Submit
-              </Button>
-              <Button
-                variant="contained"
+              </button>
+              <button
                 onClick={handleClose}
-                style={{ backgroundColor: "red" }}
-                className="bg-red-500 hover:bg-red-600"
+                className="bg-primary text-white max-md:px-2  py-1 md:px-4 md:py-2 rounded-xl text-sm"
               >
                 Cancel
-              </Button>
+              </button>
             </div>
           </div>
         </Box>

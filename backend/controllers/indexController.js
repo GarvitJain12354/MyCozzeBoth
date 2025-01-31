@@ -202,17 +202,22 @@ exports.avatarupload = CatchAsyncErrors(async (req, res, next) => {
     const modifiedFileName = `demoImage-${Date.now()}${path.extname(
       file.name
     )}`;
-    if (userData.avatar.fileId !== "") {
-      await imagekit.deleteFile(userData.avatar.fileId);
+
+    if (userData.avatar?.fileId !== "" && userData.avatar.fileId !== undefined) {
+      await imagekit.deleteFile(userData?.avatar?.fileId);
     }
     const { fileId, url } = await imagekit.upload({
       file: file.data,
       fileName: modifiedFileName,
     });
+    console.log(fileId, url, 456);
+
     userData.avatar = { fileId, url };
     await userData.save();
     res.json({ message: "Profile Image uploaded" });
   } catch (error) {
+    console.log(error);
+
     res.json({
       error,
     });
@@ -587,6 +592,7 @@ exports.checkVerificationCode = async (req, res) => {
 // const axios = require("axios");
 
 const axios = require("axios");
+const { log } = require("console");
 
 // In-memory storage for OTPs (use Redis or a database in production)
 
