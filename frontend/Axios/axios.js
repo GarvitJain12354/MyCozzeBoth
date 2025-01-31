@@ -4,7 +4,7 @@ import axios from "axios";
 const instance = axios.create({
   // Set your base URL (adjust based on production/development)
   // baseURL: "https://flatematebackend.onrender.com/api/v1",
-  baseURL: "http://147.93.103.77:4000/api/v1",
+  baseURL: "https://api.mycozee.in/api/v1",
   // baseURL: "https://mycozee.vercel.app",
   withCredentials: true,
 });
