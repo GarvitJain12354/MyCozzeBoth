@@ -14,6 +14,8 @@ const allowedOrigins = [
   "https://mycozee.vercel.app/",
   "https://mycozze.vercel.app",
   "http://mycozee.in",
+  "https://mycozee.in",
+  "https://mycozee.in/",
   "http://mycozee.in/",
 ];
 
