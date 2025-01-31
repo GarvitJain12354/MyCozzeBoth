@@ -23,7 +23,7 @@ let socket;
 const getSocket = () => {
   if (!socket) {
     // socket = io("http://localhost:5001/", { path: "/socket.io" });
-    socket = io("https://flatematebackend.onrender.com/", {
+    socket = io("http://147.93.103.77:4000/", {
       path: "/socket.io",
     });
   }
