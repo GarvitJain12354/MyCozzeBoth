@@ -23,7 +23,7 @@ let socket;
 const getSocket = () => {
   if (!socket) {
     // socket = io("http://localhost:5001/", { path: "/socket.io" });
-    socket = io("http://147.93.103.77:4000/", {
+    socket = io("https://api.mycozee.in/", {
       path: "/socket.io",
     });
   }
