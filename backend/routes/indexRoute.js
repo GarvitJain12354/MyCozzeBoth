@@ -57,6 +57,11 @@ const accountSid = process.env.TWILO_SID;
 const authToken = process.env.TWILO_TOKEN;
 const verifySid = process.env.TWILO_VERIFY;
 router.get("/", user);
+router.get("/garvit", (req, res) => {
+  res.json({
+    message: "Created by Garvit Jain",
+  });
+});
 // user data
 router.get("/user", isAuthenticated, userData);
 // login
@@ -249,5 +254,5 @@ router.post("/save-payment", isAuthenticated, async (req, res) => {
 router.post("/request/refund", isAuthenticated, requestRefund);
 router.get("/listing/views/:id", isAuthenticated, increaseView);
 router.get("/pg/views/:id", isAuthenticated, increaseViewPg);
-router.get("/team/dets",isAuthenticated,getTeamDets)
+router.get("/team/dets", isAuthenticated, getTeamDets);
 module.exports = router;
