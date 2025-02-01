@@ -18,6 +18,7 @@ import { clearMessage } from "../store/Reducer/Auth";
 import { getAllNotification } from "../store/Action/User";
 const settings = ["My Dashboard", "Logout"];
 import { io } from "socket.io-client";
+import axios from "axios";
 
 let socket;
 const getSocket = () => {
@@ -31,6 +32,11 @@ const getSocket = () => {
 };
 
 const NavBar = ({ close, isOpen, setIsOpen, dashboard, mobile }) => {
+
+
+
+  // Replace with the search text you want to use
+
   const { user, loading, isAuthenticated } = useSelector((state) => state.Auth);
   const { notification, count, message, error } = useSelector(
     (state) => state.User
@@ -156,6 +162,7 @@ const NavBar = ({ close, isOpen, setIsOpen, dashboard, mobile }) => {
                   )}
                 </>
               ))}
+
             {user?.role === "owner" && (
               <NavLink
                 to={"/owner/list"}
@@ -174,7 +181,6 @@ const NavBar = ({ close, isOpen, setIsOpen, dashboard, mobile }) => {
             </NavLink> */}
           </>
         )}
-
         {!isAuthenticated && loading ? (
           <CircularProgress color="red" />
         ) : isAuthenticated ? (

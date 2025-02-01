@@ -20,6 +20,7 @@ import DescriptionOnwer from "../../Components/Owner/DescriptionOwner";
 import CustomDropdown from "../../Components/Auth/CustomDropDown";
 import { getAllCity } from "../../store/Action/Others";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const List = () => {
   const [selectedPG, setSelectedPG] = useState("Male");
@@ -121,8 +122,8 @@ const List = () => {
     const formData = new FormData();
     formData.append("name", e.target.name.value);
     formData.append("pgName", e.target.pgName.value);
-    formData.append("location", e.target.location.value);
-    formData.append("city", selectedCity);
+    formData.append("location", name);
+    // formData.append("city", selectedCity);
     formData.append("mobile", e.target.mobile.value);
     formData.append("occupancy", e.target.single.value);
     formData.append("furnitured", selectedFurniture);
@@ -136,7 +137,10 @@ const List = () => {
         triple: e.target.triple.value,
       })
     );
-    formData.append("elecricityCharges", e.target.elecricityCharges.value);
+    formData.append(
+      "elecricityCharges",
+      Number(e.target.elecricityCharges.value)
+    );
     formData.append("securityDeposit", securityDeposit);
     formData.append("noticePeriod", noticePeriod);
     formData.append("amenities", JSON.stringify(selectedPrefrence));
@@ -173,7 +177,83 @@ const List = () => {
   useEffect(() => {
     dispatch(getAllCity());
   }, []);
+  const [name, setName] = useState("");
+  const [data, setData] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false); // Control dropdown visibility
+  const dropdownRef = useRef(null);
+  const clientId = "b9e290e7-f181-4ac6-aa6f-b2060d85c369";
+  const clientSecret = "livnPf1BP8oJM99urlqXjltKqnjLi0E7";
 
+  async function getAccessToken() {
+    try {
+      const response = await axios.post(
+        "https://account.olamaps.io/realms/olamaps/protocol/openid-connect/token",
+        new URLSearchParams({
+          grant_type: "client_credentials",
+          scope: "openid",
+          client_id: clientId,
+          client_secret: clientSecret,
+        }),
+        { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+      );
+
+      return response.data.access_token;
+    } catch (error) {
+      console.error("Error getting access token:", error);
+      throw error;
+    }
+  }
+
+  async function fetchAutocomplete(searchText) {
+    setName(searchText);
+    if (searchText.trim() === "") {
+      setData([]);
+      setShowDropdown(false);
+      return;
+    }
+
+    try {
+      const accessToken = await getAccessToken();
+      const response = await axios.get(
+        `https://api.olamaps.io/places/v1/autocomplete`,
+        {
+          params: { input: searchText },
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
+
+      const places = response.data.predictions.map((prediction) =>
+        prediction.terms.map((term) => term.value).join(", ")
+      );
+      setData(places);
+      setShowDropdown(true);
+    } catch (error) {
+      console.error(
+        "Error fetching autocomplete results:",
+        error.response?.data || error.message
+      );
+    }
+  }
+
+  // Hide dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+  useEffect(() => {
+    if (name === "") {
+      setData([]);
+      setShowDropdown(false);
+    }
+  }, [name]);
   return (
     <div>
       <NavBar close={true} />
@@ -249,25 +329,46 @@ const List = () => {
                   </div>
                 </div>
                 <div className="flex w-full items-center md:pl-3  h-full justify-center">
-                  <div className="w-full mt-6">
-                    <label className="font-bold ">Select a city *</label>
-                    <select
-                      value={selectedCity}
-                      onChange={(e) => setselectedCity(e.target.value)}
-                      className="w-full border-2 border-[#bc2c3d] outline-none py-2 rounded-xl mt-2"
-                    >
-                      {city?.map((i, index) => (
-                        <option value={i.name}>{i.name}</option>
-                      ))}
-                    </select>
-                  </div>
-
                   <div className="w-full  max-md:px-0">
-                    <InputList
-                      name="location"
-                      title="Add Your Location *"
-                      placeholder="Enter location"
-                    />
+                    <div className="flex relative ml-0 mt-6 flex-col items-start gap-2 p-2 w-full max-md:ml-0">
+                      <label className="font-extrabold">
+                        Add your address <span className="text-primary">*</span>
+                      </label>
+                      <input
+                        type={"text"}
+                        placeholder={"Add location"}
+                        className="w-full p-2 rounded-xl border-2 border-primary outline-primary max-md:w-full"
+                        name={"location"}
+                        value={name}
+                        onChange={(e) => fetchAutocomplete(e.target.value)}
+                        // defaultValue={listing?.location}
+                      />
+                      {showDropdown && data.length > 0 && (
+                        <div
+                          ref={dropdownRef}
+                          className="absolute top-[90%] mt-1 w-full bg-white shadow-lg border rounded-lg max-h-[30vh] overflow-y-auto z-30"
+                        >
+                          {data.length > 0 ? (
+                            data.map((place, index) => (
+                              <div
+                                key={index}
+                                className="p-2 cursor-pointer hover:bg-gray-100"
+                                onClick={() => {
+                                  setName(place);
+                                  setShowDropdown(false);
+                                }}
+                              >
+                                {place}
+                              </div>
+                            ))
+                          ) : (
+                            <div className="p-2 text-gray-500">
+                              No results found
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

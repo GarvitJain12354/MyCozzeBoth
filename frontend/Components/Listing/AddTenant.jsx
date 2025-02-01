@@ -23,6 +23,7 @@ import Loading from "../Loading";
 import CustomDropdown from "../Auth/CustomDropDown";
 import { getAllCity } from "../../store/Action/Others";
 import TeamUpPopUp from "./TeamUpPopUp";
+import axios from "axios";
 
 const AddTenant = ({ settype }) => {
   const { message, loading, error, tenant } = useSelector(
@@ -148,9 +149,9 @@ const AddTenant = ({ settype }) => {
       toast.error("Please fill all the required fields.");
       return;
     }
-    formData.append("city", selectedCity);
+    // formData.append("city", selectedCity);
 
-    formData.append("location", e.target.location.value);
+    formData.append("location", name);
     formData.append("approxRent", e.target.rent.value);
     formData.append("gender", gender);
     formData.append("occupancy", ocuSelected);
@@ -191,7 +192,89 @@ const AddTenant = ({ settype }) => {
       dispatch(clearErrorUser());
     }
   }, [message, error]);
-  console.log(tenant, 763);
+  const el = useRef(null);
+  const [name, setName] = useState("");
+  const [data, setData] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false); // Control dropdown visibility
+  const dropdownRef = useRef(null);
+  const clientId = "b9e290e7-f181-4ac6-aa6f-b2060d85c369";
+  const clientSecret = "livnPf1BP8oJM99urlqXjltKqnjLi0E7";
+
+  async function getAccessToken() {
+    try {
+      const response = await axios.post(
+        "https://account.olamaps.io/realms/olamaps/protocol/openid-connect/token",
+        new URLSearchParams({
+          grant_type: "client_credentials",
+          scope: "openid",
+          client_id: clientId,
+          client_secret: clientSecret,
+        }),
+        { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+      );
+
+      return response.data.access_token;
+    } catch (error) {
+      console.error("Error getting access token:", error);
+      throw error;
+    }
+  }
+
+  async function fetchAutocomplete(searchText) {
+    console.log(searchText);
+
+    setName(searchText);
+    if (searchText.trim() === "") {
+      setData([]);
+      setShowDropdown(false);
+      return;
+    }
+
+    try {
+      const accessToken = await getAccessToken();
+      const response = await axios.get(
+        `https://api.olamaps.io/places/v1/autocomplete`,
+        {
+          params: { input: searchText },
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
+      console.log(response);
+
+      const places = response.data.predictions.map((prediction) =>
+        prediction.terms.map((term) => term.value).join(", ")
+      );
+
+      setData(places);
+      setShowDropdown(true);
+      console.log(places, 456);
+    } catch (error) {
+      console.error(
+        "Error fetching autocomplete results:",
+        error.response?.data || error.message
+      );
+    }
+  }
+
+  // Hide dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+  useEffect(() => {
+    if (name === "") {
+      setData([]);
+      setShowDropdown(false);
+    }
+  }, [name]);
 
   if (loading) {
     return <Loading />;
@@ -211,7 +294,7 @@ const AddTenant = ({ settype }) => {
 
       <div className="w-full grid grid-cols-2 items-center mt-8 max-md:grid-cols-1">
         <div className="flex w-full items-start h-full justify-center max-md:flex-wrap">
-          <div className="flex ml-0 max-md:mt-2 mt-6 flex-col items-start gap-2 p-2 w-full max-md:ml-0">
+          {/* <div className="flex ml-0 max-md:mt-2 mt-6 flex-col items-start gap-2 p-2 w-full max-md:ml-0">
             <label className="font-extrabold">
               Select City <span className="text-primary">*</span>
             </label>
@@ -221,9 +304,9 @@ const AddTenant = ({ settype }) => {
               options={city}
               width={"100%"}
             />
-          </div>
+          </div> */}
 
-          <div className="flex ml-0 max-md:mt-2 mt-6 flex-col items-start gap-2 p-2 w-full max-md:ml-0">
+          <div className="flex relative ml-0 max-md:mt-2 mt-6 flex-col items-start gap-2 p-2 w-full max-md:ml-0">
             <label className="font-extrabold">
               Add your address <span className="text-primary">*</span>
             </label>
@@ -232,8 +315,34 @@ const AddTenant = ({ settype }) => {
               placeholder={"Add location"}
               className="w-full p-2 rounded-xl border-2 outline-primary max-md:w-full"
               name={"location"}
+              value={name}
+              onChange={(e) => fetchAutocomplete(e.target.value)}
               defaultValue={tenant?.location}
             />
+            {/* Dropdown List (Wrapped with div for position control) */}
+            {showDropdown && (
+              <div
+                ref={dropdownRef}
+                className="absolute top-[90%] mt-1 w-full bg-white shadow-lg border rounded-lg max-h-[30vh] overflow-y-auto z-30"
+              >
+                {data.length > 0 ? (
+                  data.map((place, index) => (
+                    <div
+                      key={index}
+                      className="p-2 cursor-pointer hover:bg-gray-100"
+                      onClick={() => {
+                        setName(place);
+                        setShowDropdown(false);
+                      }}
+                    >
+                      {place}
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-2 text-gray-500">No results found</div>
+                )}
+              </div>
+            )}
           </div>
         </div>
         <div className="flex w-full flex-col gap-2 p-2">

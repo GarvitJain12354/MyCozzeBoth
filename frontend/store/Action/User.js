@@ -308,3 +308,14 @@ export const loginWithNumber = () => async (dispatch) => {
     dispatch(userFail(error.response.data));
   }
 };
+
+export const getLocationSearch = (location) => async (dispatch) => {
+  dispatch(userRequest());
+  try {
+    const { data } = await axios.get(`/user/get/location/listing/${location}`);
+    // dispatch(getTeamDetailsSuccess(data));
+
+  } catch (error) {
+    dispatch(userFail(error.response.data));
+  }
+};

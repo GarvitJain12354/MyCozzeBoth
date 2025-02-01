@@ -52,6 +52,8 @@ exports.addPg = CatchAsyncErrors(async (req, res, next) => {
     obj.rent = JSON.parse(req.body.rent);
     obj.mobile = Number(req.body.mobile);
     obj.elecricityCharges = Number(req.body.elecricityCharges);
+    
+    
     const pg = await new Room(obj).save();
     // const owner = await User.findById(req.user.id);
     const file = req.files?.images;

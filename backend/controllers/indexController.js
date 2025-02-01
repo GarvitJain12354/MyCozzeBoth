@@ -203,7 +203,10 @@ exports.avatarupload = CatchAsyncErrors(async (req, res, next) => {
       file.name
     )}`;
 
-    if (userData.avatar?.fileId !== "" && userData.avatar.fileId !== undefined) {
+    if (
+      userData.avatar?.fileId !== "" &&
+      userData.avatar.fileId !== undefined
+    ) {
       await imagekit.deleteFile(userData?.avatar?.fileId);
     }
     const { fileId, url } = await imagekit.upload({
@@ -1153,4 +1156,35 @@ exports.getTeamDets = CatchAsyncErrors(async (req, res, next) => {
     tenant,
     success: true,
   });
+});
+
+exports.getSearchListing = CatchAsyncErrors(async (req, res, next) => {
+  try {
+    const { type, location } = req.params; // Extract parameters
+    const regex = new RegExp(location, "i"); // Case-insensitive regex for partial match
+    let listings = [];
+
+    if (type === "listing") {
+      listings = await Listing.find({ location: regex, status: true });
+    } else if (type === "pg") {
+      listings = await Room.find({ location: regex, status: true });
+    } else if (type === "flat") {
+      listings = await Listing.find({ location: regex, status: true })
+        .populate({
+          path: "user",
+          select: "isFlatOwner",
+        })
+        .then((results) =>
+          results.filter((listing) => listing.user?.isFlatOwner === true)
+        );
+    }
+
+    res.status(200).json({
+      success: true,
+      count: listings.length,
+      listings,
+    });
+  } catch (error) {
+    next(error); // Pass error to the error-handling middleware
+  }
 });

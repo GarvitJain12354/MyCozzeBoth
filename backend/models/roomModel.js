@@ -19,7 +19,7 @@ const roomModel = new mongoose.Schema(
     },
     city: {
       type: String,
-      required: [true, "PG city is required"],
+      // required: [true, "PG city is required"],
     },
     mobile: {
       type: Number,

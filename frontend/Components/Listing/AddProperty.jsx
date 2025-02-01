@@ -46,7 +46,88 @@ const AddProperty = ({ settype, user, listing, closePop }) => {
   const fileInputRef = useRef(null);
   const [privateN, setprivateN] = useState(listing?.public || false);
   const [selectedCity, setselectedCity] = useState(listing?.city);
-  console.log(selectedCity, 896);
+  const [name, setName] = useState("");
+  const [data, setData] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false); // Control dropdown visibility
+  const dropdownRef = useRef(null);
+  const clientId = "b9e290e7-f181-4ac6-aa6f-b2060d85c369";
+  const clientSecret = "livnPf1BP8oJM99urlqXjltKqnjLi0E7";
+
+  async function getAccessToken() {
+    try {
+      const response = await axios.post(
+        "https://account.olamaps.io/realms/olamaps/protocol/openid-connect/token",
+        new URLSearchParams({
+          grant_type: "client_credentials",
+          scope: "openid",
+          client_id: clientId,
+          client_secret: clientSecret,
+        }),
+        { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+      );
+
+      return response.data.access_token;
+    } catch (error) {
+      console.error("Error getting access token:", error);
+      throw error;
+    }
+  }
+
+  async function fetchAutocomplete(searchText) {
+    console.log(searchText);
+
+    setName(searchText);
+    if (searchText.trim() === "") {
+      setData([]);
+      setShowDropdown(false);
+      return;
+    }
+
+    try {
+      const accessToken = await getAccessToken();
+      const response = await axios.get(
+        `https://api.olamaps.io/places/v1/autocomplete`,
+        {
+          params: { input: searchText },
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
+      console.log(response);
+
+      const places = response.data.predictions.map((prediction) =>
+        prediction.terms.map((term) => term.value).join(", ")
+      );
+
+      setData(places);
+      setShowDropdown(true);
+      console.log(places, 456);
+    } catch (error) {
+      console.error(
+        "Error fetching autocomplete results:",
+        error.response?.data || error.message
+      );
+    }
+  }
+
+  // Hide dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+  useEffect(() => {
+    if (name === "") {
+      setData([]);
+      setShowDropdown(false);
+    }
+  }, [name]);
 
   const openFileInput = () => {
     fileInputRef.current.click();
@@ -151,13 +232,10 @@ const AddProperty = ({ settype, user, listing, closePop }) => {
   const dispatch = useDispatch();
   const submitDets = (e) => {
     e.preventDefault();
-    console.log("Hello");
-
     const formData = new FormData();
-
     // Adding location, rent, gender, occupancy, highlights, and public flag
-    formData.append("location", e.target.location.value);
-    formData.append("city", selectedCity);
+    formData.append("location", name);
+    // formData.append("city", selectedCity);
     formData.append("approxRent", e.target.rent.value);
     formData.append("gender", gender);
     formData.append("occupancy", ocuSelected);
@@ -195,25 +273,7 @@ const AddProperty = ({ settype, user, listing, closePop }) => {
       // navigate("/");
     }
   };
-  const fetchNearbyPlaces = async (city, lat, lng) => {
-    const apiKey = "30ef0b29005743f0a941ef522552ae6e";
-    try {
-      const response = await axios.get(
-        `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(
-          city
-        )}&key=${apiKey}&proximity=${lat},${lng}&radius=10000`
-      );
 
-      const suggestions = response.data.results.map(
-        (result) => result.formatted
-      );
-      console.log("Nearby suggestions:", suggestions);
-      return suggestions;
-    } catch (error) {
-      console.error("Error fetching location data:", error);
-      return [];
-    }
-  };
   const [value, setValue] = useState(1);
   const onChange = (e) => {
     console.log("radio checked", e.target.value);
@@ -237,7 +297,6 @@ const AddProperty = ({ settype, user, listing, closePop }) => {
       toast.error(error);
       dispatch(clearErrorUser());
     }
-    fetchNearbyPlaces("Bhopal", 23.2599, 77.4126);
   }, [message, error, loading, dispatch]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const showModal = () => {
@@ -278,19 +337,7 @@ const AddProperty = ({ settype, user, listing, closePop }) => {
       {/* <LocationSelector/> */}
       <div className="w-full grid grid-cols-2 items-center mt-8 place-content-center place-items-center max-md:grid-cols-1">
         <div className="flex w-full items-start h-full justify-center max-md:flex-wrap">
-          <div className="flex ml-0 mt-6 flex-col items-start gap-2 p-2 w-full max-md:ml-0 ">
-            <label className="font-extrabold">
-              Select City <span className="text-primary">*</span>
-            </label>
-            <CustomDropdown
-              selectedOption={selectedCity}
-              setSelectedOption={setselectedCity}
-              options={city}
-              width={"100%"}
-            />
-          </div>
-
-          <div className="flex ml-0 mt-6 flex-col items-start gap-2 p-2 w-full max-md:ml-0">
+          <div className="flex relative ml-0 mt-6 flex-col items-start gap-2 p-2 w-full max-md:ml-0">
             <label className="font-extrabold">
               Add your address <span className="text-primary">*</span>
             </label>
@@ -299,8 +346,33 @@ const AddProperty = ({ settype, user, listing, closePop }) => {
               placeholder={"Add location"}
               className="w-full p-2 rounded-xl border-2 outline-primary max-md:w-full"
               name={"location"}
+              value={name}
+              onChange={(e) => fetchAutocomplete(e.target.value)}
               defaultValue={listing?.location}
             />
+            {showDropdown && data.length > 0 && (
+              <div
+                ref={dropdownRef}
+                className="absolute top-[90%] mt-1 w-full bg-white shadow-lg border rounded-lg max-h-[30vh] overflow-y-auto z-30"
+              >
+                {data.length > 0 ? (
+                  data.map((place, index) => (
+                    <div
+                      key={index}
+                      className="p-2 cursor-pointer hover:bg-gray-100"
+                      onClick={() => {
+                        setName(place);
+                        setShowDropdown(false);
+                      }}
+                    >
+                      {place}
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-2 text-gray-500">No results found</div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -472,8 +544,13 @@ const AddProperty = ({ settype, user, listing, closePop }) => {
       <div className="flex w-full flex-col gap-2 p-2 mt-6 max-md:flex-wrap">
         <label className="font-extrabold">
           Do you want to make your mobile no. public ?{" "}
-          <Tooltip placement="topLeft" title={"If your phone is private, others can only contact you through chats ."}>
-          <i className="ri-information-2-fill text-primary"></i>
+          <Tooltip
+            placement="topLeft"
+            title={
+              "If your phone is private, others can only contact you through chats ."
+            }
+          >
+            <i className="ri-information-2-fill text-primary"></i>
           </Tooltip>
           <span className="text-primary">*</span>
         </label>
@@ -522,7 +599,11 @@ const AddProperty = ({ settype, user, listing, closePop }) => {
         <textarea
           name="description"
           id=""
-          defaultValue={listing?.description ? listing?.description : "I am looking for a roommate"}
+          defaultValue={
+            listing?.description
+              ? listing?.description
+              : "I am looking for a roommate"
+          }
           className="p-2 border-[1px] h-48 border-primary outline-none rounded-lg "
         ></textarea>
       </div>
