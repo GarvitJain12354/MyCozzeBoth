@@ -68,6 +68,9 @@ export const Auth = createSlice({
       // (state.isAuthenticated = false),
       // (state.user = null);
     },
+    deleteAccountSuccess: (state, action) => {
+      (state.loading = false), (state.message = action.payload.message);
+    },
     isUserSuccess: (state, action) => {
       (state.loading = false),
         (state.isAuthenticated = true),
@@ -113,5 +116,6 @@ export const {
   isUserRequest,
   userNotificationSuccess,
   userForgetLinkSuccess,
+  deleteAccountSuccess,
 } = Auth.actions;
 export default Auth.reducer;

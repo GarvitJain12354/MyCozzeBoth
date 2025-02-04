@@ -8,7 +8,7 @@ import moment from "moment";
 import { Dropdown, Space } from "antd";
 import { clearDlt } from "../../store/Reducer/UserReducer";
 
-const socket = io("http://localhost:5001/", {
+const socket = io("https://api.mycozee.in/", {
   path: "/socket.io",
 });
 

@@ -17,6 +17,8 @@ const MobileLogin = ({ setphone, handleOpen }) => {
       const response = await axios.post("/user/loginotp", {
         number: number,
       });
+      console.log(response);
+      
       if (response.status === 200) {
         setOtpSent(true);
         console.log("OTP sent successfully");
@@ -24,8 +26,9 @@ const MobileLogin = ({ setphone, handleOpen }) => {
         console.error("Failed to send OTP");
       }
     } catch (error) {
-      toast.error(error.response.data.error);
-      setOtpError(error.response.data.error);
+
+      toast.error(error.response.data.message);
+      // setOtpError(error.response.data.message);
     }
   };
 

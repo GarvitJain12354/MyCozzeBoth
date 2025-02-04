@@ -40,6 +40,7 @@ const {
   sendOtpLogin,
   verifyOtpNumber,
   getSearchListing,
+  deleteAccount,
 } = require("../controllers/indexController");
 const { isAuthenticated } = require("../middlewares/auth");
 const { authorizeRoles } = require("../jwt/sendToken");
@@ -256,5 +257,6 @@ router.post("/request/refund", isAuthenticated, requestRefund);
 router.get("/listing/views/:id", isAuthenticated, increaseView);
 router.get("/pg/views/:id", isAuthenticated, increaseViewPg);
 router.get("/team/dets", isAuthenticated, getTeamDets);
-router.get("/get/location/:type/:location",getSearchListing)
+router.get("/get/location/:type/:location", getSearchListing);
+router.get("/delete/account",isAuthenticated,deleteAccount)
 module.exports = router;

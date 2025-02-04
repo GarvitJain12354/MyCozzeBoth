@@ -193,15 +193,15 @@ const Profile = ({ user }) => {
             className="w-[92%] max-md:w-full grid     lg:grid-cols-2"
             onSubmit={onSubmitForm}
           >
-            <div className="h-36 ml-5 mt-6 w-32 relative overflow-hidden rounded-lg bg-gray-300">
+            <div className="max-h-36 ml-5 mt-6 w-32 relative overflow-hidden flex items-center justify-center rounded-lg">
               <Image
                 src={`${user?.avatar?.url}`}
-                className="h-full w-full object-cover rounded-full"
+                className="h-full w-full object-cover"
                 alt=""
               />
               <i
                 onClick={openFileInput}
-                className="ri-edit-fill text-center text-xs cursor-pointer flex items-center justify-center h-6 w-6 absolute text-white bottom-0 right-0 bg-primary rounded-full"
+                className="ri-edit-fill  text-center text-xs cursor-pointer flex items-center justify-center h-6 w-6 absolute text-white bottom-0 right-0 bg-primary rounded-full"
               ></i>
             </div>
             <span></span>

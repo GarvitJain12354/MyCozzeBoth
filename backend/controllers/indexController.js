@@ -605,6 +605,10 @@ const otpStore = new Map();
 const generateOtp = () => Math.floor(100000 + Math.random() * 900000);
 exports.sendOtpLogin = async (req, res) => {
   const { number } = req.body;
+  const user = await User.findOne({contact:number})
+  if(!user) return res.status(404).json({
+    message:"User not found with this number"
+  })
   const indianNumberPattern = /^[6-9]\d{9}$/;
 
   if (!indianNumberPattern.test(number)) {
@@ -677,7 +681,7 @@ exports.sendOtp = async (req, res) => {
     console.log(`Generated OTP: ${otp}`);
 
     const response = await axios.get(
-      `https://api.authkey.io/request?authkey=32cbe7e2ba2f16a9&mobile=${number}&country_code=91&sid=16192&company=MyCozee&otp=${otp}`
+      `https://api.authkey.io/request?authkey=32cbe7e2ba2f16a9&mobile=${number}&country_code=91&sid=16109&company=MyCozee&otp=${otp}`
     );
 
     // Check if OTP submission was successful
@@ -1186,5 +1190,54 @@ exports.getSearchListing = CatchAsyncErrors(async (req, res, next) => {
     });
   } catch (error) {
     next(error); // Pass error to the error-handling middleware
+  }
+});
+
+exports.deleteAccount = CatchAsyncErrors(async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    // If the user is a 'flatemate', check and delete listings and tenant data
+    if (user.role === "flatemate") {
+      // Delete all listings associated with the user
+      if (user.listing.length > 0) {
+        for (let listingId of user.listing) {
+          const listing = await Listing.findById(listingId);
+          if (listing) {
+            // Delete images from Cloudinary
+            for (let image of listing.images) {
+              await imagekit.deleteFile(image.fileId);
+            }
+            // Remove listing from DB
+            await Listing.findByIdAndDelete(listingId);
+          }
+        }
+      }
+
+      // Delete tenant record if exists
+      if (user.tenant) {
+        await Tenant.findByIdAndDelete(user.tenant);
+      }
+      if (user.avatar.fileId) {
+        await imagekit.deleteFile(user.avatar.fileId);
+      }
+    }
+    await User.findByIdAndDelete(req.user.id);
+
+    res.status(200).json({
+      success: true,
+      message: "Account deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error,
+    });
   }
 });

@@ -1,5 +1,6 @@
 import axios from "../../Axios/axios";
 import {
+  deleteAccountSuccess,
   isFail,
   isRequest,
   isUserFail,
@@ -62,8 +63,19 @@ export const userLogout = (info) => async (dispatch) => {
 export const sendForgetLink = (dets) => async (dispatch) => {
   dispatch(isRequest());
   try {
-    const { data } = await axios.post(`/user/send/mail`,dets);
+    const { data } = await axios.post(`/user/send/mail`, dets);
     dispatch(userForgetLinkSuccess(data));
+  } catch (error) {
+    dispatch(isFail(error.response.data));
+  }
+};
+
+export const deleteAccount = () => async (dispatch) => {
+  dispatch(isRequest());
+  try {
+    const { data } = await axios.get("/user/delete/account");
+    dispatch(deleteAccountSuccess(data));
+    localStorage.removeItem("myCozeetoken");
   } catch (error) {
     dispatch(isFail(error.response.data));
   }

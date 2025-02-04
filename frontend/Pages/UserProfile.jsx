@@ -6,7 +6,7 @@ import { Button, Modal } from "antd";
 
 import Profile from "../Components/Profile/Profile";
 import { useDispatch, useSelector } from "react-redux";
-import { isUser, userLogout } from "../store/Action/Auth";
+import { deleteAccount, isUser, userLogout } from "../store/Action/Auth";
 import Loading from "../Components/Loading";
 import MyPrefrence from "../Components/Profile/MyPrefrence";
 import MyNotification from "../Components/Profile/MyNotification";
@@ -51,6 +51,11 @@ const UserProfile = () => {
   const handleCancel = () => {
     setIsModalOpen(false);
     setselected("My Profile");
+  };
+  const handleDelete = () => {
+    dispatch(deleteAccount());
+    setIsModalOpen(false);
+    navigate("/")
   };
   const dispatch = useDispatch();
   useEffect(() => {
@@ -123,7 +128,7 @@ const UserProfile = () => {
           onCancel={handleCancel}
           footer={""}
         >
-          <h1 className="text-4xl font-extrabold text-primary text-center">
+          <h1  className="text-4xl font-extrabold text-primary text-center">
             Are you sure?
           </h1>
           <h3 className="text-center p-4">
@@ -137,7 +142,9 @@ const UserProfile = () => {
             >
               No, take me back
             </button>
-            <button className="w-1/2 p-2  bg-white text-primary border-2 border-primary rounded-lg">
+            <button
+            onClick={handleDelete}
+            className="w-1/2 p-2  bg-white text-primary border-2 border-primary rounded-lg">
               Yes, I’m sure!
             </button>
           </div>
