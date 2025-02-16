@@ -1,14 +1,127 @@
 import { Icon } from "@iconify-icon/react/dist/iconify.js";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import CardSwiper from "./CardSwiper";
 import { NavLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { isUser } from "../store/Action/Auth";
+import axios from "axios";
 
 const Card = ({ data, index, listing, showModal, match, user, type }) => {
   const dispatch = useDispatch();
   const { isAuthenticated } = useSelector((state) => state.Auth);
   // console.log(data?.owner);
+  const [distance, setDistance] = useState(null);
+
+  // Get access token for Ola Maps API
+  async function getAccessToken() {
+    try {
+      const response = await axios.post(
+        "https://account.olamaps.io/realms/olamaps/protocol/openid-connect/token",
+        new URLSearchParams({
+          grant_type: "client_credentials",
+          scope: "openid",
+          client_id: import.meta.env.VITE_CLIENT_ID,
+          client_secret: import.meta.env.VITE_CLIENT_SECRET,
+        }),
+        { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+      );
+
+      return response.data.access_token;
+    } catch (error) {
+      console.error("Error getting access token:", error);
+      throw error;
+    }
+  }
+
+  // Function to geocode listing address
+  const geocodeAddress = async (address) => {
+    if (!address) {
+      console.error("No address provided for geocoding.");
+      return null;
+    }
+
+    try {
+      const accessToken = await getAccessToken();
+      if (!accessToken) throw new Error("Failed to fetch access token");
+
+      const response = await axios.get(
+        "https://api.olamaps.io/places/v1/geocode",
+        {
+          params: { address },
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
+      console.log(response.data, 236);
+
+      if (response.data?.geocodingResults?.length > 0) {
+        const { lat, lng } =
+          response.data.geocodingResults[0].geometry.location;
+        return { lat, lng };
+      } else {
+        console.error("Geocoding failed: No results found.");
+        return null;
+      }
+    } catch (error) {
+      console.error(
+        "Error geocoding address:",
+        error.response?.data || error.message
+      );
+      return null;
+    }
+  };
+
+  // Function to calculate distance using Haversine formula
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const toRad = (value) => (value * Math.PI) / 180;
+    const R = 6371; // Earth's radius in km
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) *
+        Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // Distance in km
+  };
+
+  useEffect(() => {
+    const fetchDistance = async () => {
+      try {
+        const userPosition = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject);
+        });
+
+        const userLat = userPosition.coords.latitude;
+        const userLng = userPosition.coords.longitude;
+
+        const listingAddress = data?.location;
+        const listingPosition = await geocodeAddress(listingAddress);
+        // console.log(listingPosition, 489);
+
+        if (listingPosition) {
+          const { lat: listingLat, lng: listingLng } = listingPosition;
+          console.log(userLat, userLng, listingLat, listingLng, 489);
+
+          const dist = calculateDistance(
+            userLat,
+            userLng,
+            listingLat,
+            listingLng
+          );
+          // console.log(dist, 456);
+
+          setDistance(dist.toFixed(2)); // Round to 2 decimal places
+        }
+      } catch (error) {
+        console.error("Error calculating distance:", error);
+      }
+    };
+
+    fetchDistance();
+  }, [data]);
+  console.log(distance, 456);
 
   // useEffect(() => {
   //   dispatch(isUser());
@@ -59,7 +172,7 @@ const Card = ({ data, index, listing, showModal, match, user, type }) => {
             <img src="/tick.png" className="object-contain" alt="" />
           </h1>
           <h3 className="bg-[#bc2c3d28] w-fit text-xs text-primary px-2 rounded-full">
-            1.3 Km from your search
+            {distance} Km from your search
           </h3>
         </div>
 
@@ -141,7 +254,7 @@ const Card = ({ data, index, listing, showModal, match, user, type }) => {
               <img src="/tick.png" className="object-contain" alt="" />
             </h1>
             <h3 className="bg-[#bc2c3d28] text-xs text-primary px-2 rounded-full">
-              1.3 Km from your search
+              {distance} Km from your search
             </h3>
           </div>
         </div>
@@ -231,7 +344,7 @@ const Card = ({ data, index, listing, showModal, match, user, type }) => {
             <img src="/tick.png" className="object-contain" alt="" />
           </h1>
           <h3 className="bg-[#bc2c3d28] text-xs text-primary px-2 rounded-full">
-            1.3 Km from your search
+            {distance} Km from your search
           </h3>
         </div>
       </div>
