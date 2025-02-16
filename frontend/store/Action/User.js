@@ -1,8 +1,12 @@
 import axios from "../../Axios/axios";
 import {
+  allGroupChatsSuccess,
+  getAdminTeamSuccess,
   getTeamDetailsSuccess,
   refundSuccess,
   removeNotificationSuccess,
+  sendTeamRequestSuccess,
+  userAcceptRequestSuccess,
   userAssignPlanSuccess,
   userChatDetsSuccess,
   userFail,
@@ -13,7 +17,9 @@ import {
   userNotificationSuccess,
   userReportingSuccess,
   userRequest,
+  userRequestSuccess,
   userResetPasswordSuccess,
+  userSentRequestSuccess,
   userSuccess,
   userTenantSuccess,
 } from "../Reducer/UserReducer";
@@ -292,7 +298,6 @@ export const getTeamDetails = () => async (dispatch) => {
   try {
     const { data } = await axios.get("/user/team/dets");
     dispatch(getTeamDetailsSuccess(data));
-
   } catch (error) {
     dispatch(userFail(error.response.data));
   }
@@ -303,7 +308,6 @@ export const loginWithNumber = () => async (dispatch) => {
   try {
     const { data } = await axios.get("/user/team/dets");
     dispatch(getTeamDetailsSuccess(data));
-
   } catch (error) {
     dispatch(userFail(error.response.data));
   }
@@ -314,7 +318,83 @@ export const getLocationSearch = (location) => async (dispatch) => {
   try {
     const { data } = await axios.get(`/user/get/location/listing/${location}`);
     // dispatch(getTeamDetailsSuccess(data));
+  } catch (error) {
+    dispatch(userFail(error.response.data));
+  }
+};
 
+export const createTeam = (dets) => async (dispatch) => {
+  dispatch(userRequest());
+  try {
+    const { data } = await axios.post("/user/team/create", dets);
+    dispatch(sendTeamRequestSuccess(data));
+  } catch (error) {
+    dispatch(userFail(error.response.data));
+  }
+};
+
+export const sendRequest = (dets) => async (dispatch) => {
+  dispatch(userRequest());
+  try {
+    const { data } = await axios.post("/user/team/request", dets);
+    dispatch(sendTeamRequestSuccess(data));
+  } catch (error) {
+    dispatch(userFail(error.response.data));
+  }
+};
+
+export const getAdminTeam = () => async (dispatch) => {
+  dispatch(userRequest());
+  try {
+    const { data } = await axios.get("/user/admin/team");
+    dispatch(getAdminTeamSuccess(data));
+  } catch (error) {
+    dispatch(userFail(error.response.data));
+  }
+};
+
+export const allGroupChats = (id) => async (dispatch) => {
+  dispatch(userRequest());
+  try {
+    const { data } = await axios.get(`/user/team/${id}/messages`);
+    dispatch(allGroupChatsSuccess(data));
+  } catch (error) {
+    dispatch(userFail(error.response.data));
+  }
+};
+export const deleteGroupChats = (id) => async (dispatch) => {
+  dispatch(userRequest());
+  try {
+    const { data } = await axios.get(`/user/team/${id}/messages`);
+    dispatch();
+  } catch (error) {
+    dispatch(userFail(error.response.data));
+  }
+};
+export const getTeamRequest = () => async (dispatch) => {
+  dispatch(userRequest());
+  try {
+    const { data } = await axios.get("/user/get/team/request");
+    dispatch(userRequestSuccess(data));
+  } catch (error) {
+    dispatch(userFail(error.response.data));
+  }
+};
+export const getTeamSentRequest = () => async (dispatch) => {
+  dispatch(userRequest());
+  try {
+    const { data } = await axios.get("/user/get/team/sent");
+    dispatch(userSentRequestSuccess(data));
+  } catch (error) {
+    dispatch(userFail(error.response.data));
+  }
+};
+
+export const acceptTeamRequest = (id) => async (dispatch) => {
+  dispatch(userRequest());
+  try {
+    const { data } = await axios.get(`/user/team/accept/${id}`);
+    dispatch(userAcceptRequestSuccess(data));
   } catch (error) {
     dispatch(userFail(error.response.data));
   }

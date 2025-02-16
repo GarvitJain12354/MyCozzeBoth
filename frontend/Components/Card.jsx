@@ -5,7 +5,7 @@ import { NavLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { isUser } from "../store/Action/Auth";
 
-const Card = ({ data, index, listing, showModal, match, user }) => {
+const Card = ({ data, index, listing, showModal, match, user, type }) => {
   const dispatch = useDispatch();
   const { isAuthenticated } = useSelector((state) => state.Auth);
   // console.log(data?.owner);
@@ -18,9 +18,8 @@ const Card = ({ data, index, listing, showModal, match, user }) => {
   // }, [isAuthenticated,dispatch])
   // console.log(match, 789);
   // console.log(data, listing, 596);
-console.log('====================================');
-console.log(data,listing,236);
-console.log('====================================');
+  console.log(data, user, listing, type, 1234);
+
   return isAuthenticated ? (
     user ? (
       <NavLink
@@ -75,6 +74,10 @@ console.log('====================================');
               <>
                 Looking for <span className="text-primary">Roommate</span>
               </>
+            ) : listing?.isFlat ? (
+              <>
+                Flat for <span className="text-primary">{listing?.gender}</span>
+              </>
             ) : (
               <>
                 PG for <span className="text-primary">Any</span>
@@ -112,7 +115,9 @@ console.log('====================================');
             <img
               // src={`${data?.user?.avatar?.url}`}
               src={`${
-                listing ? data?.user?.avatar?.url : data?.owner?.avatar?.url
+                listing || type === "Flat"
+                  ? data?.user?.avatar?.url
+                  : data?.owner?.avatar?.url
               }`}
               className="h-full w-full object-cover"
               alt=""
@@ -120,7 +125,19 @@ console.log('====================================');
           </div>
           <div className="flex flex-col gap-2">
             <h1 className="flex font-semibold text-base gap-2 items-center">
-              {data?.owner?.firstname} {data?.owner?.lastname}{" "}
+              {listing || type === "Flat" ? (
+                <>
+                  {data?.user?.firstname} {data?.user?.lastname}
+                </>
+              ) : (
+                <>
+                  {data?.owner?.firstname} {data?.owner?.lastname}{" "}
+                </>
+              )}
+              {/* {
+                data?.user?.firstname
+              } */}
+              {/* {data?.owner?.firstname} {data?.owner?.lastname}{" "} */}
               <img src="/tick.png" className="object-contain" alt="" />
             </h1>
             <h3 className="bg-[#bc2c3d28] text-xs text-primary px-2 rounded-full">
@@ -141,9 +158,7 @@ console.log('====================================');
         </div>
 
         <div className="flex flex-col p-4 gap-1">
-          {user ? (
-            ""
-          ) : listing ? (
+          {listing || type === "Flat" ? (
             <h1 className="text-lg md:text-xl font-extrabold">
               ₹ {data?.approxRent}
               <span className="text-xs">/ mo</span>
@@ -154,16 +169,19 @@ console.log('====================================');
               <span className="text-xs">/ mo</span>
             </h1>
           )}
-
           <h3 className="text-sm">{data?.location}</h3>
           <h3 className="text-sm">
-            {listing ? (
+            {listing && type !== "Flat" ? (
               <>
                 Looking for <span className="text-primary">Roommate</span>
               </>
+            ) : type === "Flat" ? (
+              <>
+                Flat for <span className="text-primary">{data?.gender}</span>
+              </>
             ) : (
               <>
-                PG for <span className="text-primary">Any</span>
+                PG for <span className="text-primary">{data?.gender}</span>
               </>
             )}
           </h3>
@@ -201,7 +219,15 @@ console.log('====================================');
         </div>
         <div className="flex flex-col gap-2">
           <h1 className="flex font-semibold text-base gap-2 items-center">
-            {data?.owner?.firstname} {data?.owner?.lastname}{" "}
+            {listing || type === "Flat" ? (
+              <>
+                {data?.user?.firstname} {data?.user?.lastname}
+              </>
+            ) : (
+              <>
+                {data?.owner?.firstname} {data?.owner?.lastname}{" "}
+              </>
+            )}{" "}
             <img src="/tick.png" className="object-contain" alt="" />
           </h1>
           <h3 className="bg-[#bc2c3d28] text-xs text-primary px-2 rounded-full">

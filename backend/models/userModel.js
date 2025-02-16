@@ -160,16 +160,10 @@ const userModel = new mongoose.Schema(
         ref: "User",
       },
     ],
-    team: [
+    teamId: [
       {
-        userId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-        },
-        accepted: {
-          type: Boolean,
-          default: false,
-        },
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Team",
       },
     ],
   },

@@ -3,6 +3,8 @@ import Typed from "typed.js";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { getLocationSearch } from "../../store/Action/User";
+import FilterChip from "../FilterChip";
+import { useNavigate } from "react-router-dom";
 
 const Page1 = ({ type, settype, search, user }) => {
   const el = useRef(null);
@@ -10,6 +12,7 @@ const Page1 = ({ type, settype, search, user }) => {
   const [data, setData] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false); // Control dropdown visibility
   const dropdownRef = useRef(null);
+  const [filterType, setfilterType] = useState("Roommate");
 
   useEffect(() => {
     const typed = new Typed("#text", {
@@ -93,18 +96,28 @@ const Page1 = ({ type, settype, search, user }) => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-useEffect(() => {
-if(name === ""){
-  setData([])
-  setShowDropdown(false);
+  useEffect(() => {
+    if (name === "") {
+      setData([]);
+      setShowDropdown(false);
+    }
+  }, [name]);
+  const dispatch = useDispatch();
+  // const handleClick = () => {
+  //   dispatch(getLocationSearch(name));
+  // };
+  const navigate = useNavigate();
+  const handleClick = (type, location, budget, gender) => {
+    console.log("hello");
 
-}
-}, [name])
-const dispatch = useDispatch()
-const handleClick = ()=>{
-  dispatch(getLocationSearch(name))
-}
-
+    navigate(
+      `/listing?type=${encodeURIComponent(type)}&location=${encodeURIComponent(
+        location
+      )}&budget=${encodeURIComponent(budget)}&gender=${encodeURIComponent(
+        gender
+      )}`
+    );
+  };
   return (
     <div className="h-screen w-full flex flex-col items-center gap-5 justify-center relative">
       <h1 className="text-4xl md:text-5xl text-center relative z-20">
@@ -122,51 +135,11 @@ const handleClick = ()=>{
         us help you find the right fit.
       </h3>
 
-      <div className="w-[40%] max-md:w-full z-20 flex flex-col items-center gap-3 relative">
-        {/* Input Field */}
-        <div className="flex w-full items-center justify-center ">
-        <input
-          type="text"
-          placeholder="Enter the location"
-          className="w-full p-2 rounded-xl border-2 border-primary rounded-r-none outline-primary"
-          value={name}
-          onChange={(e) => fetchAutocomplete(e.target.value)}
-        />
-        <button
-          onClick={handleClick}
-          className="bg-primary w-fit h-full text-white p-2 rounded-xl rounded-l-none border-3 px-8"
-        >
-          Search
-        </button>
-        </div>
-      
-        {/* Dropdown List (Wrapped with div for position control) */}
-        {showDropdown && data.length > 0 && (
-          <div
-            ref={dropdownRef}
-            className="absolute top-full mt-1 w-full bg-white shadow-lg border rounded-lg max-h-[30vh] overflow-y-auto z-30"
-          >
-            {data.length > 0 ? (
-              data.map((place, index) => (
-                <div
-                  key={index}
-                  className="p-2 cursor-pointer hover:bg-gray-100"
-                  onClick={() => {
-                    setName(place);
-                    setShowDropdown(false);
-                  }}
-                >
-                  {place}
-                </div>
-              ))
-            ) : (
-              <div className="p-2 text-gray-500">No results found</div>
-            )}
-          </div>
-        )}
-
-        {/* Search Button */}
-      </div>
+      <FilterChip
+        search={handleClick}
+        type={filterType}
+        settype={setfilterType}
+      />
 
       {/* Background Images */}
       <img

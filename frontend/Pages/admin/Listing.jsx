@@ -4,7 +4,6 @@ import NavBar from "../../Components/NavBar";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getAllListing,
-  getAllUser,
   updateStatusListing,
 } from "../../store/Action/Admin";
 import { Switch } from "antd";
@@ -13,22 +12,23 @@ import Loading from "../../Components/Loading";
 import { toast } from "react-toastify";
 import { clearAdminError, clearAdminMessage } from "../../store/Reducer/Admin";
 import AdminListingPopUp from "../../Components/Admin/AdminListingPopUp";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+
 const AdminListing = () => {
   const dispatch = useDispatch();
   const { listing, totalPages, loading, error, message } = useSelector(
     (state) => state.Admin
-  ); // Adjust according to your state structure
+  );
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10; // Number of rows per page
+  const itemsPerPage = 10;
   const [selectedList, setselectedList] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+
   useEffect(() => {
     dispatch(getAllListing(currentPage, itemsPerPage));
   }, [dispatch, currentPage]);
-  const [checked, setChecked] = useState(true);
 
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-  };
   useEffect(() => {
     if (message) {
       toast.success(message);
@@ -41,25 +41,55 @@ const AdminListing = () => {
     }
   }, [message, error]);
 
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
   const onChange = (id) => {
-    // // console.log(`switch to ${checked}`);
-    // setChecked(!checked);
     dispatch(updateStatusListing(id));
   };
-  const [isOpen, setIsOpen] = useState(false);
+
+  // Export to Excel
+  const exportToExcel = () => {
+    const data = listing.map((i) => ({
+      "Listed By": `${i?.user?.firstname} ${i?.user?.lastname}`,
+      "Location": i?.location,
+      "Occupancy": i?.occupancy,
+      "Gender": i?.gender,
+      "Approx Rent": i?.approxRent,
+      "Reports": i?.report?.length,
+      "Status": i?.status ? "Active" : "Inactive",
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Listings");
+
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+
+    saveAs(blob, `Listings_${new Date().toISOString()}.xlsx`);
+  };
+
   return (
     <div className="w-full h-screen overflow-hidden">
       <NavBar isOpen={isOpen} setIsOpen={setIsOpen} dashboard={true} />
       <div className="flex w-full h-[89vh] overflow-hidden translate-y-20">
-        <AdminSidebar title={"Listing"} isOpen={isOpen}></AdminSidebar>
+        <AdminSidebar title={"Listing"} isOpen={isOpen} />
 
         {loading ? (
           <Loading />
         ) : !selectedList ? (
           <div className="w-full p-10">
-            <div className="py-5">
-              {" "}
+            <div className="py-5 flex justify-between">
               <h1 className="text-3xl max-md:text-xl">Listings</h1>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={exportToExcel}
+              >
+                Export to Excel
+              </Button>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full text-left text-sm font-light">
@@ -77,7 +107,7 @@ const AdminListing = () => {
                 </thead>
                 <tbody>
                   {listing?.map((i, index) => (
-                    <tr className="border-b">
+                    <tr className="border-b" key={index}>
                       <td className="px-6 py-4">
                         {i?.user?.firstname} {i?.user?.lastname}
                       </td>
@@ -107,7 +137,7 @@ const AdminListing = () => {
                           checked={i?.status}
                           value={i?.status}
                           style={{
-                            backgroundColor: i?.status ? "#bc2c3d" : "#ccc", // Change colors based on checked state
+                            backgroundColor: i?.status ? "#bc2c3d" : "#ccc",
                           }}
                         />
                       </td>
@@ -154,7 +184,6 @@ const AdminListing = () => {
           />
         )}
       </div>
-      {/* <Footer /> */}
     </div>
   );
 };

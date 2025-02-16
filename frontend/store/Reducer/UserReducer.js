@@ -82,6 +82,32 @@ export const User = createSlice({
     getTeamDetailsSuccess: (state, action) => {
       (state.team = action.payload.tenant), (state.loading = false);
     },
+    sendTeamRequestSuccess: (state, action) => {
+      (state.loading = false), (state.message = action.payload.message);
+    },
+    getAdminTeamSuccess: (state, action) => {
+      (state.loading = false),
+        (state.message = action.payload.message),
+        (state.teamDets = action.payload.teams);
+    },
+    allGroupChatsSuccess: (state, action) => {
+      // (state.message = action.payload.message),
+      (state.loading = false), (state.messageGrp = action.payload.messages);
+    },
+    userRequestSuccess: (state, action) => {
+      (state.request = action.payload.receivedRequests),
+        (state.loading = false),
+        (state.message = action.payload.message);
+    },
+    userSentRequestSuccess: (state, action) => {
+      (state.sent = action.payload.pendingMembers),
+        (state.loading = false),
+        (state.message = action.payload.message);
+    },
+    userAcceptRequestSuccess: (state, action) => {
+        (state.loading = false),
+        (state.message = action.payload.message);
+    },
     clearMessageUser: (state, action) => {
       state.message = null;
     },
@@ -110,5 +136,11 @@ export const {
   refundSuccess,
   getTeamDetailsSuccess,
   userResetPasswordSuccess,
+  sendTeamRequestSuccess,
+  getAdminTeamSuccess,
+  allGroupChatsSuccess,
+  userRequestSuccess,
+  userSentRequestSuccess,
+  userAcceptRequestSuccess
 } = User.actions;
 export default User.reducer;

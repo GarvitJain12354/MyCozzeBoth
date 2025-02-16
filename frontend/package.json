@@ -21,6 +21,7 @@
     "axios": "^1.7.7",
     "country-state-city": "^3.2.1",
     "date-fns": "^4.1.0",
+    "file-saver": "^2.0.5",
     "generate-password": "^1.7.1",
     "moment": "^2.30.1",
     "react": "^18.3.1",
@@ -37,7 +38,8 @@
     "remixicon": "^4.3.0",
     "socket.io-client": "^4.8.1",
     "swiper": "^11.1.14",
-    "typed.js": "^2.1.0"
+    "typed.js": "^2.1.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

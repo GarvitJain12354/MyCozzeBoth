@@ -66,6 +66,10 @@ const listingModel = new mongoose.Schema(
         },
       },
     ],
+    isFlat:{
+      type:Boolean,
+      default:false
+    }
   },
   {
     timestamps: true,

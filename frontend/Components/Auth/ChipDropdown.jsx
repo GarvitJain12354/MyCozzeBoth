@@ -14,7 +14,7 @@ const ChipDropdown = ({
   };
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full z-10">
       <div
         className={`min-w-full   flex items-center text-lg justify-between max-md:pl-0 ${
           !border && "border-2"
@@ -43,7 +43,7 @@ const ChipDropdown = ({
       </div>
 
       {isOpen && (
-        <ul className="min-w-28 max-md:w-full bg-white absolute rounded-b-2xl left-1/2 -translate-x-1/2 mx-auto border-2 border-gray-300 rounded-none z-10 max-h-52 overflow-hidden overflow-y-auto">
+        <ul className="min-w-28 max-md:w-full bg-white absolute rounded-b-2xl left-1/2 z-50 -translate-x-1/2 mx-auto border-2 border-gray-300 rounded-none z-10 max-h-52 overflow-hidden overflow-y-auto">
           {options.map((option, index) => (
             <li
               key={index}

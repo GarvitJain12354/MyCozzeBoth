@@ -263,6 +263,7 @@ exports.addListing = CatchAsyncErrors(async (req, res, next) => {
         message: "Buy a premium plan to add more listings",
       });
     }
+
     const highlights = JSON.parse(req.body.highlights); // Parse highlights
     const amenities = JSON.parse(req.body.amenities); // Parse highlights
     const dets = {
@@ -300,8 +301,12 @@ exports.addListing = CatchAsyncErrors(async (req, res, next) => {
     }
 
     user.listing.push(listing._id);
+
     await user.save();
     listing.user = user._id;
+    if (user.flateOwner) {
+      listing.isFlat = true;
+    }
     await listing.save();
     res.status(201).json({
       message: "Listing added succesfully",
@@ -596,6 +601,9 @@ exports.checkVerificationCode = async (req, res) => {
 
 const axios = require("axios");
 const { log } = require("console");
+const Team = require("../models/teamModel.js");
+const { default: mongoose } = require("mongoose");
+const Chat = require("../models/chatModel.js");
 
 // In-memory storage for OTPs (use Redis or a database in production)
 
@@ -605,10 +613,11 @@ const otpStore = new Map();
 const generateOtp = () => Math.floor(100000 + Math.random() * 900000);
 exports.sendOtpLogin = async (req, res) => {
   const { number } = req.body;
-  const user = await User.findOne({contact:number})
-  if(!user) return res.status(404).json({
-    message:"User not found with this number"
-  })
+  const user = await User.findOne({ contact: number });
+  if (!user)
+    return res.status(404).json({
+      message: "User not found with this number",
+    });
   const indianNumberPattern = /^[6-9]\d{9}$/;
 
   if (!indianNumberPattern.test(number)) {
@@ -1162,6 +1171,118 @@ exports.getTeamDets = CatchAsyncErrors(async (req, res, next) => {
   });
 });
 
+exports.createTeam = CatchAsyncErrors(async (req, res, next) => {
+  const { teamName } = req.body;
+  const adminId = req.user._id; // Authenticated user is the admin
+
+  const existingTeam = await Team.findOne({ admin: adminId });
+  if (existingTeam) {
+    return res
+      .status(400)
+      .json({ success: false, message: "You already own a team" });
+  }
+
+  const newTeam = await Team.create({
+    teamName,
+    admin: adminId,
+    members: [{ userId: adminId, accepted: true }],
+  });
+
+  const user = await User.findById(adminId);
+  user.teamId.push(newTeam._id);
+  await user.save();
+  res.status(201).json({
+    success: true,
+    message: "Team created successfully",
+    team: newTeam,
+  });
+});
+exports.sendTeamRequest = CatchAsyncErrors(async (req, res, next) => {
+  try {
+    const { recipientId, teamId } = req.body;
+    const senderId = req.user?._id; // Ensure senderId exists
+
+    console.log("Team ID:", teamId);
+    console.log("Recipient ID:", recipientId);
+    console.log("Sender ID:", senderId);
+
+    // Validate required fields
+    if (!teamId || !recipientId || !senderId) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields (teamId, recipientId, senderId)",
+      });
+    }
+
+    // Find the team
+    const team = await Team.findById(teamId);
+    if (!team) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Team not found" });
+    }
+
+    // Ensure `team.admin` is populated
+    if (!team.admin) {
+      return res.status(400).json({
+        success: false,
+        message: "Team admin is not set. Cannot send request.",
+      });
+    }
+
+    // Only admin can send team requests
+    if (team.admin.toString() !== senderId.toString()) {
+      return res
+        .status(403)
+        .json({ success: false, message: "Only admin can send requests" });
+    }
+
+    const existingMember = team.members.some(
+      (member) => member.userId?.toString() === recipientId.toString()
+    );
+    if (existingMember) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User already in team" });
+    }
+
+    team.members.push({ userId: recipientId, accepted: false });
+    await team.save();
+    const user = await User.findById(recipientId);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+    user.teamId.push(teamId);
+    await user.save();
+
+    res.status(200).json({ success: true, message: "Team request sent" });
+  } catch (error) {
+    console.error("Error sending team request:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+exports.acceptTeamRequest = CatchAsyncErrors(async (req, res, next) => {
+  const team = await Team.findById(req.params.id);
+  team.members.find((i) => i.userId.toString() === req.user.id).accepted = true;
+  await team.save();
+  res.status(200).json({ success: true, message: "You have joined the team" });
+});
+exports.getTeamDetails = CatchAsyncErrors(async (req, res, next) => {
+  const { teamId } = req.params;
+
+  const team = await Team.findById(teamId)
+    .populate("admin")
+    .populate("members.userId");
+  if (!team) {
+    return res.status(404).json({ success: false, message: "Team not found" });
+  }
+
+  res.status(200).json({ success: true, team });
+});
+
 exports.getSearchListing = CatchAsyncErrors(async (req, res, next) => {
   try {
     const { type, location } = req.params; // Extract parameters
@@ -1241,3 +1362,119 @@ exports.deleteAccount = CatchAsyncErrors(async (req, res, next) => {
     });
   }
 });
+
+exports.getTeamMessages = async (req, res) => {
+  const { teamId } = req.params;
+
+  try {
+    const messages = await Chat.find({ teamId }).sort({ createdAt: 1 });
+
+    res.status(200).json({ success: true, messages });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: "Error fetching team messages" });
+  }
+};
+
+exports.getAdminTeams = async (req, res) => {
+  try {
+    // const teams = await Team.find({
+    //   admin: new mongoose.Types.ObjectId(req.user.id),
+    // }).populate("members", "name email");
+    const user = await User.findById(req.user.id).populate("teamId");
+    const filter = user.teamId.filter((i) => i.members.some((j) => j.accepted));
+    console.log(filter);
+
+    res.status(200).json({ success: true, teams: filter });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error fetching teams" });
+  }
+};
+
+exports.getUserReceivedRequests = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId).populate({
+      path: "teamId",
+      populate: [
+        { path: "admin", select: "firstname lastname email avatar" }, // Populate admin details
+        { path: "members.userId", select: "firstname lastname email" }, // Populate userId inside members
+      ],
+    });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    // Filter teams where the user has a pending request (accepted: false)
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+
+    // Filter teams where the user has a pending request (accepted: false)
+    const receivedRequests = user.teamId
+      .filter((team) =>
+        team.members.some(
+          (member) =>
+            member.userId && // Ensure userId exists
+            member.userId._id.equals(userObjectId) &&
+            !member.accepted
+        )
+      )
+      .map((team) => ({
+        admin: team.admin, // Return only admin details
+        teamName: team.teamName,
+        _id: team._id,
+      }));
+
+    res.status(200).json({ success: true, receivedRequests });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error fetching requests" });
+  }
+};
+
+exports.getSentRequests = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+
+    // Find teams where the logged-in user is the admin
+    const teams = await Team.find({ admin: userObjectId }).populate({
+      path: "members.userId",
+      select: "firstname lastname email avatar",
+    });
+
+    if (!teams.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No sent requests found",
+      });
+    }
+
+    // Extract only pending members' details
+    const pendingMembers = teams.flatMap(
+      (team) =>
+        team.members
+          .filter((member) => !member.accepted) // Only pending members
+          .map((member) => member.userId) // Extract user details
+    );
+
+    if (pendingMembers.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No pending requests found",
+      });
+    }
+
+    res.status(200).json({ success: true, pendingMembers });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error fetching requests" });
+  }
+};

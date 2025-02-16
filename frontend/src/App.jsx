@@ -48,6 +48,7 @@ import AdminRequestRefund from "../Pages/admin/AdminRequestRefund";
 import Owners from "../Pages/admin/Owners";
 import TroubleShoot from "../Pages/TroubleShoot";
 import FlatOwner from "../Pages/admin/FlatOwner";
+import ListingPage from "../Pages/ListingPage";
 // import ViewCities from "../Pages/viewcities/ViewCities";
 // import UserDetailPage from "../Pages/UserDetailPage";
 function App() {
@@ -87,6 +88,7 @@ function App() {
           </>
         )}
         <Route path="city/:id/:name" element={<CityPage />} />
+        <Route path="listing" element={<ListingPage />} />
         {isAuthenticated && (
           <>
             <Route path="/roommate/:id" element={<MatesDets />} />

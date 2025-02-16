@@ -41,6 +41,14 @@ const {
   verifyOtpNumber,
   getSearchListing,
   deleteAccount,
+  createTeam,
+  sendTeamRequest,
+  acceptTeamRequest,
+  getTeamDetails,
+  getTeamMessages,
+  getAdminTeams,
+  getUserReceivedRequests,
+  getSentRequests,
 } = require("../controllers/indexController");
 const { isAuthenticated } = require("../middlewares/auth");
 const { authorizeRoles } = require("../jwt/sendToken");
@@ -258,5 +266,13 @@ router.get("/listing/views/:id", isAuthenticated, increaseView);
 router.get("/pg/views/:id", isAuthenticated, increaseViewPg);
 router.get("/team/dets", isAuthenticated, getTeamDets);
 router.get("/get/location/:type/:location", getSearchListing);
-router.get("/delete/account",isAuthenticated,deleteAccount)
+router.get("/delete/account", isAuthenticated, deleteAccount);
+router.post("/team/create", isAuthenticated, createTeam);
+router.post("/team/request", isAuthenticated, sendTeamRequest);
+router.get("/team/accept/:id", isAuthenticated, acceptTeamRequest);
+router.get("/team/:teamId", isAuthenticated, getTeamDetails);
+router.get("/admin/team", isAuthenticated, getAdminTeams);
+router.get("/team/:teamId/messages", isAuthenticated, getTeamMessages);
+router.get("/get/team/request", isAuthenticated, getUserReceivedRequests);
+router.get("/get/team/sent", isAuthenticated, getSentRequests);
 module.exports = router;

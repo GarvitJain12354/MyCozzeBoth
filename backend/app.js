@@ -30,31 +30,70 @@ const io = new socketIo.Server(httpServer, {
 });
 
 io.on("connection", (socket) => {
-  // console.log("A user connected");
+  console.log("A user connected:", socket.id);
 
+  // **Join User Room (For One-to-One Messaging)**
   socket.on("joinRoom", (userId) => {
     socket.join(userId);
+    console.log(`User ${userId} joined personal chat room`);
   });
 
-  socket.on("sendMessage", async ({ senderId, receiverId, message }) => {
-    const chatMessage = await new Chat({
-      sender: senderId,
-      receiver: receiverId,
-      message,
-    }).save();
-    io.to(receiverId).emit("receiveMessage", chatMessage);
-    io.to(senderId).emit("receiveMessage", chatMessage);
+  // **Join Team Room (For Group Messaging)**
+  socket.on("joinTeam", (teamId) => {
+    socket.join(teamId);
+    console.log(`User joined team ${teamId}`);
+  });
+
+  // **One-to-One Chat Message**
+  socket.on("sendMessage", async ({ senderId, receiverId, message }, callback) => {
+    try {
+      const chatMessage = await new Chat({
+        sender: senderId,
+        receiver: receiverId,
+        message,
+      }).save();
+
+      // Emit message to both sender & receiver
+      io.to(receiverId).emit("receiveMessage", chatMessage);
+      io.to(senderId).emit("receiveMessage", chatMessage);
+
+      if (callback) callback(chatMessage);
+    } catch (error) {
+      console.error("Error saving message:", error);
+    }
+  });
+
+  // **Team Group Chat Message**
+  socket.on("sendTeamMessage", async ({ senderId, teamId, message }, callback) => {
+    try {
+      const chatMessage = await new Chat({
+        sender: senderId,
+        teamId,
+        message,
+      }).save();
+
+      // Save message reference in the team document
+      await Team.findByIdAndUpdate(teamId, { $push: { messages: chatMessage._id } });
+
+      // Emit message to all users in the team
+      io.to(teamId).emit("receiveTeamMessage", chatMessage);
+
+      if (callback) callback(chatMessage); // Send back the saved message
+    } catch (error) {
+      console.error("Error saving team message:", error);
+    }
   });
 
   socket.on("disconnect", () => {
-    console.log("User disconnected");
+    console.log("User disconnected:", socket.id);
   });
 });
+
+
 const mongoose = require("mongoose");
 const cron = require("node-cron");
-// const User = require('./models/User'); // Adjust the path as needed
+
 cron.schedule("0 0 * * *", async () => {
-  // console.log("hello");
 
   const currentDate = new Date();
   try {
@@ -110,6 +149,7 @@ const Chat = require("./models/chatModel.js");
 const { CatchAsyncErrors } = require("./middlewares/CatchAsyncerror.js");
 const User = require("./models/userModel.js");
 const Razorpay = require("razorpay");
+const Team = require("./models/teamModel.js");
 app.use(logger("tiny"));
 
 // routes

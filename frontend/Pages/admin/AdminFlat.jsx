@@ -2,34 +2,30 @@ import React, { useEffect, useState } from "react";
 import AdminSidebar from "../../Components/Admin/AdminSidebar";
 import NavBar from "../../Components/NavBar";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getAllFlat,
-  getAllUser,
-  updateStatusListing,
-} from "../../store/Action/Admin";
+import { getAllFlat, updateStatusListing } from "../../store/Action/Admin";
 import { Switch } from "antd";
 import { Button } from "@mui/material";
 import Loading from "../../Components/Loading";
 import { toast } from "react-toastify";
 import { clearAdminError, clearAdminMessage } from "../../store/Reducer/Admin";
 import AdminListingPopUp from "../../Components/Admin/AdminListingPopUp";
-import GraphPage from "../../Components/Admin/FlateMateGraph";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+
 const AdminFlat = () => {
   const dispatch = useDispatch();
   const { flat, totalPages, loading, error, message } = useSelector(
     (state) => state.Admin
-  ); // Adjust according to your state structure
+  );
+
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10; // Number of rows per page
+  const itemsPerPage = 10;
   const [selectedList, setselectedList] = useState("");
+
   useEffect(() => {
     dispatch(getAllFlat(currentPage, itemsPerPage));
   }, [dispatch, currentPage]);
-  const [checked, setChecked] = useState(true);
 
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-  };
   useEffect(() => {
     if (message) {
       toast.success(message);
@@ -43,26 +39,55 @@ const AdminFlat = () => {
   }, [message, error]);
 
   const onChange = (id) => {
-    // // console.log(`switch to ${checked}`);
-    // setChecked(!checked);
     dispatch(updateStatusListing(id));
   };
+
   const [isOpen, setIsOpen] = useState(false);
 
+  // Function to export table data to Excel
+  const exportToExcel = () => {
+    const tableData = flat.map((i) => ({
+      "Listed By": `${i?.user?.firstname} ${i?.user?.lastname}`,
+      Location: i?.location,
+      Occupancy: i?.occupancy,
+      Gender: i?.gender,
+      "Approx Rent": i?.approxRent,
+      Status: i?.status ? "Active" : "Inactive",
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(tableData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Listings");
+
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+
+    saveAs(data, "Listings.xlsx");
+  };
 
   return (
     <div className="w-full h-screen overflow-hidden">
       <NavBar isOpen={isOpen} setIsOpen={setIsOpen} dashboard={true} />
       <div className="flex w-full h-[89vh] overflow-hidden translate-y-20">
-      <AdminSidebar title={"Flats"}  isOpen={isOpen}></AdminSidebar>
+        <AdminSidebar title={"Flats"} isOpen={isOpen}></AdminSidebar>
 
         {loading ? (
           <Loading />
         ) : !selectedList ? (
           <div className="w-full p-10">
-            <div className="py-5">
-              {" "}
+            <div className="py-5 flex justify-between">
               <h1 className="text-3xl max-md:text-xl">Listings</h1>
+              <Button
+                variant="contained"
+                style={{
+                  backgroundColor: "#4CAF50",
+                  color: "#fff",
+                  marginBottom: "10px",
+                }}
+                onClick={exportToExcel}
+              >
+                Download Excel
+              </Button>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full text-left text-sm font-light">
@@ -79,7 +104,7 @@ const AdminFlat = () => {
                 </thead>
                 <tbody>
                   {flat?.map((i, index) => (
-                    <tr className="border-b">
+                    <tr key={index} className="border-b">
                       <td className="px-6 py-4">
                         {i?.user?.firstname} {i?.user?.lastname}
                       </td>
@@ -104,7 +129,7 @@ const AdminFlat = () => {
                           checked={i?.status}
                           value={i?.status}
                           style={{
-                            backgroundColor: i?.status ? "#bc2c3d" : "#ccc", // Change colors based on checked state
+                            backgroundColor: i?.status ? "#bc2c3d" : "#ccc",
                           }}
                         />
                       </td>
@@ -116,7 +141,7 @@ const AdminFlat = () => {
 
             <div className="flex justify-center mt-4">
               <button
-                onClick={() => handlePageChange(currentPage - 1)}
+                onClick={() => setCurrentPage(currentPage - 1)}
                 disabled={currentPage === 1}
                 className="px-3 py-1 mx-1 bg-gray-300 rounded hover:bg-gray-400 disabled:bg-gray-200"
               >
@@ -125,7 +150,7 @@ const AdminFlat = () => {
               {[...Array(totalPages)].map((_, index) => (
                 <button
                   key={index}
-                  onClick={() => handlePageChange(index + 1)}
+                  onClick={() => setCurrentPage(index + 1)}
                   className={`px-3 py-1 mx-1 rounded ${
                     currentPage === index + 1
                       ? "bg-blue-500 text-white"
@@ -136,7 +161,7 @@ const AdminFlat = () => {
                 </button>
               ))}
               <button
-                onClick={() => handlePageChange(currentPage + 1)}
+                onClick={() => setCurrentPage(currentPage + 1)}
                 disabled={currentPage === totalPages}
                 className="px-3 py-1 mx-1 bg-gray-300 rounded hover:bg-gray-400 disabled:bg-gray-200"
               >
@@ -151,7 +176,6 @@ const AdminFlat = () => {
           />
         )}
       </div>
-      {/* <Footer /> */}
     </div>
   );
 };

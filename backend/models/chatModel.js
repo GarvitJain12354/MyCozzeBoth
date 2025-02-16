@@ -1,4 +1,3 @@
-// models/Chat.js
 const mongoose = require("mongoose");
 
 const chatSchema = new mongoose.Schema(
@@ -11,7 +10,12 @@ const chatSchema = new mongoose.Schema(
     receiver: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      default: null, // Optional for team messages
+    },
+    teamId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Team",
+      default: null, // Optional for one-to-one messages
     },
     message: {
       type: String,
