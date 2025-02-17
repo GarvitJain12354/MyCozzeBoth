@@ -6,7 +6,7 @@ import { clearDlt } from "../../store/Reducer/UserReducer";
 import moment from "moment";
 import Loading from "../Loading";
 
-const socket = io("http://localhost:5001/", { path: "/socket.io" });
+const socket = io("https://api.mycozee.in/", { path: "/socket.io" });
 
 const ChatWindowTeam = ({ userId, teamId }) => {
   const [messages, setMessages] = useState([]);
