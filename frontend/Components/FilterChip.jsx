@@ -101,7 +101,7 @@ const FilterChip = ({ search, location, owner, type, settype, selectedC }) => {
   console.log(data, 753);
 
   return (
-    <div className="min-w-[40%] bg-white max-md:w-full z-20 flex flex-col md:flex-row flex-wrap items-center gap-5 justify-center px-4 py-2 rounded-full border-2 shadow-xl">
+    <div className="min-w-[40%] bg-white max-md:w-[90%] z-20 flex flex-col md:flex-row flex-wrap items-center gap-5 justify-center px-4 py-2 rounded-xl border-2 shadow-xl">
       <div className="flex flex-col px-2 text-lg pr-6 gap-1 border-r-2 border-gray-300 max-md:w-full max-md:border-none">
         <h5 className="text-sm text-black">Looking for</h5>
         <h1 className="text-primary text-2xl font-semibold">

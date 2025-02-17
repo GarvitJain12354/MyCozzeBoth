@@ -108,8 +108,6 @@ const Page1 = ({ type, settype, search, user }) => {
   // };
   const navigate = useNavigate();
   const handleClick = (type, location, budget, gender) => {
-    console.log("hello");
-
     navigate(
       `/listing?type=${encodeURIComponent(type)}&location=${encodeURIComponent(
         location
