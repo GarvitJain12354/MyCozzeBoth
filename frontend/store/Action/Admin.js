@@ -243,20 +243,23 @@ export const getUserAllDetails = (id) => async (dispatch) => {
   }
 };
 
-export const getAdminDashboardDetails = () => async (dispatch) => {
-  dispatch(adminRequest());
-  try {
-    const { data } = await axios.get(`/admin/dashboard/details`);
-    dispatch(getDashboardDetailsSuccess(data));
-  } catch (error) {
-    dispatch(adminFail(error.response.data));
-  }
-};
+export const getAdminDashboardDetails =
+  (filter, start, end) => async (dispatch) => {
+    dispatch(adminRequest());
+    try {
+      const { data } = await axios.get(
+        `/admin/dashboard/details?filterType=${filter}&startDate=${start}&endDate=${end}`
+      );
+      dispatch(getDashboardDetailsSuccess(data));
+    } catch (error) {
+      dispatch(adminFail(error.response.data));
+    }
+  };
 
-export const getAdminDashboardListing = (filter) => async (dispatch) => {
+export const getAdminDashboardListing = () => async (dispatch) => {
   dispatch(adminRequest());
   try {
-    const { data } = await axios.get(`/admin/dashboard/listing/${filter}`);
+    const { data } = await axios.get(`/admin/dashboard/users`);
 
     dispatch(getDashboardListingSuccess(data));
   } catch (error) {

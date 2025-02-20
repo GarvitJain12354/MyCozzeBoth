@@ -12,6 +12,7 @@ const Notification = require("../models/notificationModel");
 const Plan = require("../models/planModel.js");
 const Testimonial = require("../models/testimonialModel.js");
 const { default: mongoose } = require("mongoose");
+const moment = require("moment");
 const imagekit = require("../middlewares/imagekit").initimagekit();
 
 exports.admin = CatchAsyncErrors(async (req, res, next) => {
@@ -637,47 +638,94 @@ exports.getListingDashboardData = CatchAsyncErrors(async (req, res) => {
 
 exports.dashboardDetails = CatchAsyncErrors(async (req, res, next) => {
   try {
-    // Fetch all listings
-    const listings = await Listing.find();
-    const totalListings = listings.length;
-    const faltemate = await User.find({ role: "flatemate", flateOwner: false });
-    const owner = await User.find({ role: "owner", flateOwner: false });
-    const pg = await User.find({ role: "flatemate", flateOwner: true });
-    // Calculate monthly and yearly listings
-    const currentMonth = new Date().getMonth();
-    const monthlyListings = listings.filter(
-      (listing) => new Date(listing.createdAt).getMonth() === currentMonth
-    ).length;
-
-    const currentYear = new Date().getFullYear();
-    const yearlyListings = listings.filter(
-      (listing) => new Date(listing.createdAt).getFullYear() === currentYear
-    ).length;
-
-    // Fetch all plans
+    const { filterType, startDate, endDate } = req.query; // Extract filter type & date range from query params
     const plans = await Plan.find().populate("users");
 
-    // Calculate yearly income from plans
-    const yearlyIncome = plans.reduce((total, plan) => {
-      // Check if the plan was purchased by users in the current year
-      const yearUsers = plan.users.filter(
-        (user) => new Date(user.createdAt).getFullYear() === currentYear
-      ).length;
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth();
+    const today = currentDate.toISOString().split("T")[0]; // Format YYYY-MM-DD
 
-      return total + plan.price * yearUsers;
-    }, 0);
+    let filteredIncome = 0;
 
-    // Respond with the dashboard details
+    // Function to check if a user purchased a plan within a given date range
+    const isWithinRange = (userDate, start, end) => {
+      const userCreatedAt = new Date(userDate).toISOString().split("T")[0];
+      return userCreatedAt >= start && userCreatedAt <= end;
+    };
+
+    // Filtering income based on the selected filter type
+    switch (filterType) {
+      case "Daily":
+        filteredIncome = plans.reduce((total, plan) => {
+          const todayUsers = plan.users.filter(
+            (user) => user.createdAt.toISOString().split("T")[0] === today
+          ).length;
+          return total + plan.price * todayUsers;
+        }, 0);
+        break;
+
+      case "Weekly":
+        const startOfWeek = new Date();
+        startOfWeek.setDate(currentDate.getDate() - currentDate.getDay()); // Start of the week (Sunday)
+        const startWeekDate = startOfWeek.toISOString().split("T")[0];
+
+        filteredIncome = plans.reduce((total, plan) => {
+          const weekUsers = plan.users.filter((user) =>
+            isWithinRange(user.createdAt, startWeekDate, today)
+          ).length;
+          return total + plan.price * weekUsers;
+        }, 0);
+        break;
+
+      case "Monthly":
+        filteredIncome = plans.reduce((total, plan) => {
+          const monthUsers = plan.users.filter(
+            (user) => new Date(user.createdAt).getMonth() === currentMonth
+          ).length;
+          return total + plan.price * monthUsers;
+        }, 0);
+        break;
+
+      case "Yearly":
+        filteredIncome = plans.reduce((total, plan) => {
+          const yearUsers = plan.users.filter(
+            (user) => new Date(user.createdAt).getFullYear() === currentYear
+          ).length;
+          return total + plan.price * yearUsers;
+        }, 0);
+        break;
+
+      case "Custom Date":
+        if (!startDate || !endDate) {
+          return res.status(400).json({
+            success: false,
+            message:
+              "Please provide both startDate and endDate for custom range.",
+          });
+        }
+
+        filteredIncome = plans.reduce((total, plan) => {
+          const customUsers = plan.users.filter((user) =>
+            isWithinRange(user.createdAt, startDate, endDate)
+          ).length;
+          return total + plan.price * customUsers;
+        }, 0);
+        break;
+
+      default:
+        return res.status(400).json({
+          success: false,
+          message:
+            "Invalid filter type. Use 'Daily', 'Weekly', 'Monthly', 'Yearly', or 'Custom Date'.",
+        });
+    }
+
+    // Send response
     res.status(200).json({
       success: true,
       data: {
-        yearlyIncome,
-        totalListings,
-        monthlyListings,
-        yearlyListings,
-        owner: owner.length,
-        flatemate: faltemate.length,
-        pg: pg.length,
+        filteredIncome, // Income based on selected filter
       },
     });
   } catch (error) {
@@ -758,3 +806,64 @@ exports.getFlatematesGraphData = CatchAsyncErrors(async (req, res, next) => {
     next(error);
   }
 });
+exports.getYearlyUserData = async (req, res) => {
+  try {
+    const currentYear = new Date().getFullYear();
+    const startOfYear = new Date(`${currentYear}-01-01T00:00:00.000Z`);
+    const endOfYear = new Date(`${currentYear}-12-31T23:59:59.999Z`);
+
+    const data = await User.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: startOfYear, $lte: endOfYear }, // Filter by year
+        },
+      },
+      {
+        $group: {
+          _id: { $month: "$createdAt" }, // Group by month
+          flatmates: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ["$role", "flatemate"] },
+                    { $eq: ["$flateOwner", false] },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          pgOwners: { $sum: { $cond: [{ $eq: ["$role", "owner"] }, 1, 0] } },
+          flatOwners: {
+            $sum: { $cond: [{ $eq: ["$flateOwner", true] }, 1, 0] },
+          },
+        },
+      },
+      { $sort: { _id: 1 } }, // Sort by month
+    ]);
+
+    // Format data for ApexCharts
+    const formattedData = {
+      months: Array.from({ length: 12 }, (_, i) =>
+        moment().month(i).format("MMMM")
+      ), // Jan - Dec
+      flatmates: Array(12).fill(0),
+      pgOwners: Array(12).fill(0),
+      flatOwners: Array(12).fill(0),
+    };
+
+    data.forEach((item) => {
+      const monthIndex = item._id - 1;
+      formattedData.flatmates[monthIndex] = item.flatmates;
+      formattedData.pgOwners[monthIndex] = item.pgOwners;
+      formattedData.flatOwners[monthIndex] = item.flatOwners;
+    });
+
+    res.status(200).json({ data: formattedData });
+  } catch (error) {
+    console.error("Error fetching yearly user data:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};

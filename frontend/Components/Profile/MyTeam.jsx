@@ -63,40 +63,36 @@ const MyTeam = () => {
   };
   useEffect(() => {
     if (selectedTeam) {
-      selectedTeam?.members?.map(
-        (i) => {
-          i.accepted && setmemeberLength((prev)=> prev + 1)
-
-        }
-        
-      );
-
+      selectedTeam?.members?.map((i) => {
+        i.accepted && setmemeberLength((prev) => prev + 1);
+      });
     } else {
       setmemeberLength(0);
     }
   }, [selectedTeam]);
-             console.log(selectedTeam);
-                  
+
   return (
     <>
-      <div className="flex items-center gap-5">
+      <div className="flex items-center justify-between gap-5 w-[92%] max-md:w-full">
         {selectedTeam ? (
           <>
-            <i
-              className="ri-arrow-left-line text-2xl cursor-pointer"
-              onClick={() => setselectedTeam("")}
-            ></i>
-            <div className="flex flex-col items-start">
-              <h1
-                className={`text-2xl max-md:text-xl shrink-0 font-semibold cursor-pointer`}
-              >
-                {selectedTeam?.teamName}
-              </h1>
-              <h5 className="text-sm ">{memeberLength} Members</h5>
+            <div className="flex items-center">
+              <i
+                className="ri-arrow-left-line text-2xl cursor-pointer"
+                onClick={() => setselectedTeam("")}
+              ></i>
+              <div className="flex flex-col items-start">
+                <h1
+                  className={`text-2xl max-md:text-xl shrink-0 font-semibold cursor-pointer`}
+                >
+                  {selectedTeam?.teamName}
+                </h1>
+                <h5 className="text-sm ">{memeberLength} Members</h5>
+              </div>
             </div>
             <button
               onClick={handleClickRequestOpen}
-              className="ml-auto font-semibold mr-24 bg-primary p-2 px-5 rounded-xl gap-2 text-white mb-1"
+              className=" font-semibold  bg-primary p-2 px-5 rounded-xl gap-2 text-white mb-1"
             >
               <i className="ri-user-add-line"></i>
               Send Request

@@ -95,7 +95,7 @@ const ChatWindowTeam = ({ userId, teamId }) => {
             ref={messagesEndRef}
             className="chat-messages h-[50vh] w-full relative overflow-y-auto"
           >
-            {messages.map((msg, index) => {
+            {messages?.map((msg, index) => {
               return (
                 <div
                   key={index}

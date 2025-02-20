@@ -193,7 +193,7 @@ const AddTenant = ({ settype }) => {
     }
   }, [message, error]);
   const el = useRef(null);
-  const [name, setName] = useState("");
+  const [name, setName] = useState(tenant?.location);
   const [data, setData] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false); // Control dropdown visibility
   const dropdownRef = useRef(null);

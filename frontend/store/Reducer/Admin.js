@@ -89,7 +89,6 @@ export const Admin = createSlice({
     },
     getDashboardListingSuccess: (state, action) => {
       (state.loading = false),
-      console.log(action.payload,123);
       
       state.dashboardlisting = action.payload.data,
         (state.message = action.payload.message);

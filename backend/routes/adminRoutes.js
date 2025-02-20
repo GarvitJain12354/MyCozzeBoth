@@ -26,6 +26,7 @@ const {
   dashboardDetails,
   getFlatematesGraphData,
   getAllFlat,
+  getYearlyUserData,
 } = require("../controllers/adminController");
 const { resetPassword } = require("../controllers/indexController");
 const { authorizeRoles } = require("../jwt/sendToken");
@@ -208,4 +209,6 @@ router.get(
   authorizeRoles("superAdmin"),
   getFlatematesGraphData
 );
+router.get("/dashboard/users", isAuthenticated, authorizeRoles("superAdmin"),getYearlyUserData);
+
 module.exports = router;

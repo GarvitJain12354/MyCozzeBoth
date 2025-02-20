@@ -102,7 +102,7 @@ const RegisterForm = () => {
   const [selectedOption, setSelectedOption] = useState(
     "Looking for a Flat / Flatmate / PG"
   );
-  const [selectedState, setselectedState] = useState("Select your city");
+  const [selectedState, setselectedState] = useState("Select your state");
   const [copy, setcopy] = useState("");
   const onSubmit = async () => {
     const croppedUrl = await createCroppedImage();
@@ -318,7 +318,7 @@ const RegisterForm = () => {
               </div>
               <div className="flex mt-6 flex-col items-start w-full gap-2 p-2">
                 <label className="font-extrabold">
-                  Select the city where you’re searching{" "}
+                  Select the state's where you’re searching{" "}
                   <span className="text-primary">*</span>
                 </label>
                 <div className="relative w-full">
