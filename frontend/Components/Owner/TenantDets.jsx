@@ -32,6 +32,14 @@ const TenantDets = ({ handleNext, activeStep, handleBack }) => {
       newErrors.mobileNumber = "Mobile Number is required";
       toast.error("Mobile Number is required");
     }
+    if (tenantData.mobileNumber) {
+      const phoneRegex = /^[6-9]\d{9}$/;
+
+      if (!phoneRegex.test(tenantData.mobileNumber)) {
+        newErrors.mobileNumber = "Invalid Mobile Number";
+        toast.error("Invalid Mobile Number");
+      }
+    }
     if (!tenantData.address) {
       newErrors.address = "Full Address is required";
       toast.error("Full Address is required");
@@ -49,8 +57,12 @@ const TenantDets = ({ handleNext, activeStep, handleBack }) => {
 
   return (
     <div className="w-[92%] max-md:w-full h-[70vh] flex items-center flex-col justify-center border-[1px] border-black rounded-2xl max-md:px-2 px-5">
-      <h1 className="text-4xl max-md:text-start max-md:text-xl">Who is renting the property?</h1>
-      <h4 className="max-md:text-xs max-md:text-start">Fill in details of the tenant/lessor/renter</h4>
+      <h1 className="text-4xl max-md:text-start max-md:text-xl">
+        Who is renting the property?
+      </h1>
+      <h4 className="max-md:text-xs max-md:text-start">
+        Fill in details of the tenant/lessor/renter
+      </h4>
 
       <InputCustom
         title={"Full Name"}

@@ -12,6 +12,7 @@ const Property = ({ handleNext, activeStep, handleBack }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    
     setPropertyData((prev) => ({
       ...prev,
       [name]: value,
@@ -35,8 +36,18 @@ const Property = ({ handleNext, activeStep, handleBack }) => {
       toast.error("Full Name should contain only letters and spaces");
     }
 
+    if (ownerMobileNumber) {
+      const phoneRegex = /^[6-9]\d{9}$/;
+
+      if (!phoneRegex.test(ownerMobileNumber)) {
+        newErrors.ownerMobileNumber = "Invalid Mobile Number";
+        toast.error("Invalid Mobile Number");
+        
+      }
+    }
     // Validate mobile number
     if (!ownerMobileNumber) {
+      
       newErrors.ownerMobileNumber = "Mobile Number is required";
       toast.error("Mobile Number is required");
     } else if (!/^\d{10}$/.test(ownerMobileNumber)) {
@@ -84,6 +95,7 @@ const Property = ({ handleNext, activeStep, handleBack }) => {
         value={propertyData.ownerMobileNumber}
         name="ownerMobileNumber"
         onChange={handleInputChange}
+        
         error={errors.ownerMobileNumber}
       />
       <InputCustom

@@ -81,12 +81,17 @@ const PGCard = ({ showModal, status, data, listing }) => {
     setIsModalOpen(false);
   };
   const handleDelete = () => {
-    dispatch(deleteListingProperty(data?._id));
+    if(listing){
+      dispatch(deleteListingProperty(data?._id));
+
+    }else{
+      dispatch(deletePg(data?._id))
+    }
     // dispatch(getUserListing());
     setIsModalOpen(false);
   };
   const pgDets = data;
-console.log(pgDets,123);
+  console.log(pgDets, 123);
 
   return (
     <>

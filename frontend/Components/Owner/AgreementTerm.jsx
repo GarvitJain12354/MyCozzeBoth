@@ -37,11 +37,13 @@ const AgreementTerm = ({ handleNext, activeStep, handleBack }) => {
         name="monthlyRent"
         value={agreementData.monthlyRent}
         onChange={handleInputChange}
+        type={"number"}
       />
 
       <InputCustom
         title={"Security Deposit"}
         required={true}
+        type={"number"}
         placeholder={"Enter Security Deposit"}
         name="securityDeposit"
         value={agreementData.securityDeposit}
@@ -53,6 +55,7 @@ const AgreementTerm = ({ handleNext, activeStep, handleBack }) => {
         required={true}
         placeholder={"Enter Lock In Period"}
         name="lockInPeriod"
+        type={"number"}
         value={agreementData.lockInPeriod}
         onChange={handleInputChange}
       />
@@ -60,6 +63,7 @@ const AgreementTerm = ({ handleNext, activeStep, handleBack }) => {
       <InputCustom
         title={"Notice Period (No. of Months)"}
         required={true}
+        type={"number"}
         placeholder={"Enter Notice Period"}
         name="noticePeriod"
         value={agreementData.noticePeriod}
@@ -69,6 +73,7 @@ const AgreementTerm = ({ handleNext, activeStep, handleBack }) => {
       <InputCustom
         title={"Agreement Validity (No. of Months)"}
         required={true}
+        type={"number"}
         placeholder={"Enter Agreement Validity"}
         name="agreementValidity"
         value={agreementData.agreementValidity}

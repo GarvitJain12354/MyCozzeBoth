@@ -168,7 +168,7 @@ const RegisterForm = () => {
     formData.append("city", selectedState);
     formData.append("gender", gender);
     formData.append("contact", Number(num));
-    formData.append("prefrence", JSON.stringify(selectedPrefrence));
+    formData.append("prefrence",selectedPrefrence);
     if (selectedOption === "Looking for a Flat / Flatmate / PG") {
       formData.append("role", "flatemate");
     } else if (selectedOption === "List my Flat (Flat Owner)") {

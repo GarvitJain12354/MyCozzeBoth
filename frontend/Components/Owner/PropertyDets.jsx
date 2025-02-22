@@ -47,6 +47,14 @@ const PropertyDets = ({ handleNext, activeStep, handleBack }) => {
       toast.error("Mobile Number is required");
       isValid = false;
     }
+    if (propertyData.mobileNumber.length === 10) {
+      const phoneRegex = /^[6-9]\d{9}$/;
+
+      if (!phoneRegex.test(propertyData.mobileNumber)) {
+        toast.error("Invalid Mobile Number");
+        isValid = false;
+      }
+    }
     if (!propertyData.fullAddress) {
       toast.error("Full Address is required");
       isValid = false;
@@ -59,7 +67,13 @@ const PropertyDets = ({ handleNext, activeStep, handleBack }) => {
       toast.error("PIN Code is required");
       isValid = false;
     }
-
+    if (propertyData.pinCode) {
+      const regex = /^[1-9][0-9]{2}\s?[0-9]{3}$/;
+      if (!regex.test(propertyData.pinCode)) {
+        toast.error("Invalid Pincode");
+        isValid = false;
+      }
+    }
     return isValid;
   };
 
@@ -76,8 +90,12 @@ const PropertyDets = ({ handleNext, activeStep, handleBack }) => {
 
   return (
     <div className="w-[92%] px-5 max-md:w-full min-h-[70vh] py-5   flex items-center flex-col justify-center border-[1px] border-black rounded-2xl max-md:px-4">
-      <h1 className="text-4xl font-semibold max-md:text-xl">Property Details</h1>
-      <h4 className="max-md:text-xs  py-2">Fill in details of the property being rented</h4>
+      <h1 className="text-4xl font-semibold max-md:text-xl">
+        Property Details
+      </h1>
+      <h4 className="max-md:text-xs  py-2">
+        Fill in details of the property being rented
+      </h4>
 
       <div className=" w-full gap-2 p-2">
         <label className="font-extrabold">

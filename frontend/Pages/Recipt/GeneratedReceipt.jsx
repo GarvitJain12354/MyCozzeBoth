@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const MyDocument = ({ monthlyData, landlordName,address }) => (
+const MyDocument = ({ monthlyData, landlordName, address }) => (
   <Document>
     {monthlyData.map(({ startDate, endDate, tenantName, amount }, index) => (
       <Page key={index} style={styles.page}>
@@ -148,7 +148,19 @@ const GeneratedReceipt = ({ data }) => {
       }
       fileName="agreement.pdf"
     >
-      {({ loading }) => (loading ? "Generating document..." : "Download Now")}
+      {({ loading }) =>
+        loading ? (
+          "Generating document..."
+        ) : (
+          <button
+            type="submit"
+            className="px-2 text-lg sm:text-xl bg-[#bc2c3d] flex justify-center items-center text-white py-3 rounded-xl"
+          >
+            Download Now
+            <Icon icon="iconamoon:arrow-right-2-thin" width={35} />
+          </button>
+        )
+      }
     </PDFDownloadLink>
   );
 };

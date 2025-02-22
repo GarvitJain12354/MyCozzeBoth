@@ -69,7 +69,7 @@ export const Auth = createSlice({
       // (state.user = null);
     },
     deleteAccountSuccess: (state, action) => {
-      (state.loading = false), (state.message = action.payload.message);
+      (state.loading = false)
     },
     isUserSuccess: (state, action) => {
       (state.loading = false),

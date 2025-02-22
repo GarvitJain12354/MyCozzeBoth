@@ -638,100 +638,98 @@ exports.getListingDashboardData = CatchAsyncErrors(async (req, res) => {
 
 exports.dashboardDetails = CatchAsyncErrors(async (req, res, next) => {
   try {
-    const { filterType, startDate, endDate } = req.query; // Extract filter type & date range from query params
+    const { filterType, startDate, endDate } = req.query;
     const plans = await Plan.find().populate("users");
+    const listings = await Listing.find();
 
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
     const currentMonth = currentDate.getMonth();
-    const today = currentDate.toISOString().split("T")[0]; // Format YYYY-MM-DD
+    const today = currentDate.toISOString().split("T")[0];
 
-    let filteredIncome = 0;
+    let totalIncome = 0;
+    let totalUsers = 0;
+    let planDetails = [];
+    let totalListings = 0;
 
-    // Function to check if a user purchased a plan within a given date range
     const isWithinRange = (userDate, start, end) => {
       const userCreatedAt = new Date(userDate).toISOString().split("T")[0];
       return userCreatedAt >= start && userCreatedAt <= end;
     };
 
-    // Filtering income based on the selected filter type
+    const calculateData = (startDate, endDate) => {
+      plans.forEach((plan) => {
+        const filteredUsers = plan.users.filter((user) =>
+          isWithinRange(user.createdAt, startDate, endDate)
+        );
+
+        const userCount = filteredUsers.length;
+        totalUsers += userCount;
+        totalIncome += plan.price * userCount;
+
+        planDetails.push({
+          planName: plan.planName,
+          userCount,
+          revenue: plan.price * userCount,
+        });
+      });
+
+      totalListings = listings.filter((listing) =>
+        isWithinRange(listing.createdAt, startDate, endDate)
+      ).length;
+    };
+
     switch (filterType) {
       case "Daily":
-        filteredIncome = plans.reduce((total, plan) => {
-          const todayUsers = plan.users.filter(
-            (user) => user.createdAt.toISOString().split("T")[0] === today
-          ).length;
-          return total + plan.price * todayUsers;
-        }, 0);
+        calculateData(today, today);
         break;
-
       case "Weekly":
         const startOfWeek = new Date();
-        startOfWeek.setDate(currentDate.getDate() - currentDate.getDay()); // Start of the week (Sunday)
-        const startWeekDate = startOfWeek.toISOString().split("T")[0];
-
-        filteredIncome = plans.reduce((total, plan) => {
-          const weekUsers = plan.users.filter((user) =>
-            isWithinRange(user.createdAt, startWeekDate, today)
-          ).length;
-          return total + plan.price * weekUsers;
-        }, 0);
+        startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+        calculateData(startOfWeek.toISOString().split("T")[0], today);
         break;
-
       case "Monthly":
-        filteredIncome = plans.reduce((total, plan) => {
-          const monthUsers = plan.users.filter(
-            (user) => new Date(user.createdAt).getMonth() === currentMonth
-          ).length;
-          return total + plan.price * monthUsers;
-        }, 0);
+        calculateData(
+          new Date(currentYear, currentMonth, 1).toISOString().split("T")[0],
+          today
+        );
         break;
-
       case "Yearly":
-        filteredIncome = plans.reduce((total, plan) => {
-          const yearUsers = plan.users.filter(
-            (user) => new Date(user.createdAt).getFullYear() === currentYear
-          ).length;
-          return total + plan.price * yearUsers;
-        }, 0);
+        calculateData(
+          new Date(currentYear, 0, 1).toISOString().split("T")[0],
+          today
+        );
         break;
-
       case "Custom Date":
         if (!startDate || !endDate) {
           return res.status(400).json({
             success: false,
-            message:
-              "Please provide both startDate and endDate for custom range.",
+            message: "Please provide both startDate and endDate for custom range.",
           });
         }
-
-        filteredIncome = plans.reduce((total, plan) => {
-          const customUsers = plan.users.filter((user) =>
-            isWithinRange(user.createdAt, startDate, endDate)
-          ).length;
-          return total + plan.price * customUsers;
-        }, 0);
+        calculateData(startDate, endDate);
         break;
-
       default:
         return res.status(400).json({
           success: false,
-          message:
-            "Invalid filter type. Use 'Daily', 'Weekly', 'Monthly', 'Yearly', or 'Custom Date'.",
+          message: "Invalid filter type. Use 'Daily', 'Weekly', 'Monthly', 'Yearly', or 'Custom Date'.",
         });
     }
 
-    // Send response
     res.status(200).json({
       success: true,
       data: {
-        filteredIncome, // Income based on selected filter
+        totalIncome,
+        totalUsers,
+        totalListings,
+        planDetails,
       },
     });
   } catch (error) {
     next(error);
   }
 });
+
 
 exports.getFlatematesGraphData = CatchAsyncErrors(async (req, res, next) => {
   try {

@@ -18,7 +18,7 @@ import { toast } from "react-toastify";
 import { clearError, clearMessage } from "../../store/Reducer/Auth";
 import ProfileListing from "../../Components/Listing/ProfileListing";
 import ProfileSidebar from "../../Components/Profile/ProfileSidebar";
-import { isUser, userLogout } from "../../store/Action/Auth";
+import { deleteAccount, isUser, userLogout } from "../../store/Action/Auth";
 import PGManagement from "../../Components/Owner/PGManagement";
 import PremiumPosterDets from "../../Components/Premium/PremiumPosterDets";
 import Premium from "../../Components/Owner/Premium";
@@ -69,10 +69,10 @@ const OwnerProfile = () => {
       title: "Need Help",
       icon: "material-symbols:help-outline",
     },
-    // {
-    //   title: "Delete account",
-    //   icon: "line-md:account-delete",
-    // },
+    {
+      title: "Delete account",
+      icon: "line-md:account-delete",
+    },
     {
       title: "Logout",
       icon: "material-symbols:logout",
@@ -102,7 +102,12 @@ const OwnerProfile = () => {
     }
   }, [selected, dispatch]);
   const [isOpen, setIsOpen] = useState(false);
-
+  const handleDelete = () => {
+    dispatch(deleteAccount());
+    
+    setIsModalOpen(false);
+    navigate("/");
+  };
   return (
     <>
       <div className="w-full h-screen overflow-hidden">
@@ -153,7 +158,10 @@ const OwnerProfile = () => {
             >
               No, take me back
             </button>
-            <button className="w-1/2 p-2  bg-white text-primary border-2 border-primary rounded-lg">
+            <button
+              onClick={handleDelete}
+              className="w-1/2 p-2  bg-white text-primary border-2 border-primary rounded-lg"
+            >
               Yes, I’m sure!
             </button>
           </div>

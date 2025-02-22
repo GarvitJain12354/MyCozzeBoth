@@ -78,7 +78,7 @@ const sideBarData = [
 const AdminSidebar = ({ title, isOpen }) => {
   return (
     <div
-      className={`w-[15rem] max-md:absolute z-50 transition-all duration-300 ease-linear md:w-[18rem] ${
+      className={`w-[15rem] relative h-full overflow-y-auto pb-8 max-md:absolute z-50 transition-all duration-300 ease-linear md:w-[18rem] ${
         isOpen ? "max-md:left-0  " : "max-md:-left-full"
       } h-screen flex px-2 flex-col bg-[#F9FAFB] gap-3 pt-[1rem] `}
     >

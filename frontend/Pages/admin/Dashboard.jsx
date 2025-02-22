@@ -50,6 +50,15 @@ const DashboardAdmin = () => {
   //   // dispatch(getAdminDashboardListing(filter));
   // };
   // console.log(data, 746);
+  // console.log(customDate,);
+  const [totalSubscription, settotalSubscription] = useState(0);
+  useEffect(() => {
+    if (dashboard) {
+      dashboard?.planDetails?.map((i) =>
+        settotalSubscription((prev) => prev + i.userCount)
+      );
+    }
+  }, [dashboard]);
 
   return (
     <div className="w-full h-screen overflow-hidden">
@@ -108,10 +117,13 @@ const DashboardAdmin = () => {
               </div>
             </div>
             <div className="grid grid-cols-4 gap-4">
-              <div className="w-full font-semibold text-2xl h-[20vh] rounded-2xl bg-gray-200 flex flex-col items-start p-6 justify-center">
-                <h1 className="text-4xl">₹ {dashboard?.filteredIncome}</h1>
+              <div className="w-full relative font-semibold text-2xl h-[20vh] rounded-2xl bg-gray-200 flex flex-col items-start p-6 justify-center">
+                <h1 className="text-4xl flex items-center justify-center">
+                  ₹ {dashboard?.totalIncome}
+                  <Icon icon="tabler:moneybag" width="40" height="40" />
+                </h1>
                 <h1 className="text-base">
-                  {data === "Custom Date"
+                  {data === "Custom Date" && customDate !== null
                     ? `${new Date(
                         customDate[0]
                       ).toLocaleDateString()} - ${new Date(
@@ -119,6 +131,24 @@ const DashboardAdmin = () => {
                       ).toLocaleDateString()} Income`
                     : `${data} Income`}
                 </h1>
+              </div>
+              <div className="w-full font-semibold text-2xl h-[20vh] rounded-2xl bg-gray-200 flex flex-col items-start p-6 justify-center">
+                <h1 className="text-4xl flex items-center justify-center gap-4">
+                  514
+                  <Icon icon="tabler:device-analytics" width="40" height="40" />
+                </h1>
+                <h1 className="text-base">Insights on website</h1>
+              </div>
+              <div className="w-full font-semibold text-2xl h-[20vh] rounded-2xl bg-gray-200 flex flex-col items-start p-6 justify-center">
+                <h1 className="text-4xl flex items-center justify-center gap-4">
+                  {totalSubscription}{" "}
+                  <Icon icon="solar:crown-linear" width="40" height="40" />
+                </h1>
+                <h1 className="text-base">Subscription Purchased</h1>
+              </div>
+              <div className="w-full font-semibold text-2xl h-[20vh] rounded-2xl bg-gray-200 flex flex-col items-start p-6 justify-center">
+                <h1 className="text-4xl">{dashboard?.totalListings}</h1>
+                <h1 className="text-base">Total Listings</h1>
               </div>
               {/* {data === "Listings" ? (
               <>
