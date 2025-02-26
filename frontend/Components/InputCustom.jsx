@@ -10,6 +10,8 @@ const InputCustom = ({
   onChange,
   val,
   disabled,
+  className,
+  max
 }) => {
   return (
     <div className="flex  mt-6 flex-col items-start gap-2 p-2 w-full max-md:ml-0">
@@ -19,12 +21,13 @@ const InputCustom = ({
       <input
         type={type}
         placeholder={placeholder}
-        className="w-full p-2 rounded-xl border-2 outline-primary max-md:w-full"
+        className={`w-full p-2 rounded-xl border-2 outline-primary max-md:w-full ${className}`}
         name={name}
         value={value}
         defaultValue={val}
         onChange={onChange} // Pass onChange from props
         disabled={disabled}
+        maxLength={max}
       />
     </div>
   );

@@ -26,7 +26,11 @@ exports.user = CatchAsyncErrors(async (req, res, next) => {
 });
 exports.registerUser = CatchAsyncErrors(async (req, res, next) => {
   try {
-    const userModel = await new User(req.body).save();
+    const dets = {
+      ...req.body,
+      prefrence: JSON.parse(req.body.prefrence)
+    };
+    const userModel = await new User(dets).save();
     userModel.contact = Number(req.body.contact);
     const file = req?.files?.avatar;
     // console.log(file.name);
@@ -44,7 +48,7 @@ exports.registerUser = CatchAsyncErrors(async (req, res, next) => {
         fileName: modifiedFileName,
       });
       userModel.avatar = { fileId, url };
-      userModel.prefrence = JSON.parse(req.body.prefrence);
+      // userModel.prefrence = JSON.parse(req.body.prefrence);
       await userModel.save();
     }
 
@@ -1478,4 +1482,3 @@ exports.getSentRequests = async (req, res) => {
       .json({ success: false, message: "Error fetching requests" });
   }
 };
-

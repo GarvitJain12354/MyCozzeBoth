@@ -31,7 +31,7 @@ export const Auth = createSlice({
     userRegisterSuccess: (state, action) => {
       (state.isAuthenticated = true),
         (state.loading = false),
-        (state.message = "User Register Successfully"),
+        // (state.message = "User Register Successfully"),
         (state.user = action.payload.user);
     },
     userRegisterFail: (state, action) => {
@@ -69,7 +69,7 @@ export const Auth = createSlice({
       // (state.user = null);
     },
     deleteAccountSuccess: (state, action) => {
-      (state.loading = false)
+      state.loading = false;
     },
     isUserSuccess: (state, action) => {
       (state.loading = false),

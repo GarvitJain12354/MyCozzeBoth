@@ -23,13 +23,14 @@ const UserProfile = () => {
   const { user, loading, message, error, isAuthenticated } = useSelector(
     (state) => state.Auth
   );
+  // <Icon icon="solar:buildings-3-bold" width="24" height="24" />
   const sideBarData = [
     { title: "My Profile", icon: "mingcute:user-2-line" },
     { title: "My Preferences", icon: "gala:settings" },
     { title: "My Notifications", icon: "uiw:bell" },
     {
       title: "Manage Listings",
-      icon: "gala:settings",
+      icon: "solar:buildings-3-bold",
     },
     ...(!user?.flateOwner
       ? [{ title: "My Team", icon: "fluent:people-team-add-20-regular" }]
@@ -55,7 +56,7 @@ const UserProfile = () => {
   const handleDelete = () => {
     dispatch(deleteAccount());
     setIsModalOpen(false);
-    navigate("/")
+    navigate("/");
   };
   const dispatch = useDispatch();
   useEffect(() => {
@@ -128,7 +129,7 @@ const UserProfile = () => {
           onCancel={handleCancel}
           footer={""}
         >
-          <h1  className="text-4xl font-extrabold text-primary text-center">
+          <h1 className="text-4xl font-extrabold text-primary text-center">
             Are you sure?
           </h1>
           <h3 className="text-center p-4">
@@ -143,8 +144,9 @@ const UserProfile = () => {
               No, take me back
             </button>
             <button
-            onClick={handleDelete}
-            className="w-1/2 p-2  bg-white text-primary border-2 border-primary rounded-lg">
+              onClick={handleDelete}
+              className="w-1/2 p-2  bg-white text-primary border-2 border-primary rounded-lg"
+            >
               Yes, I’m sure!
             </button>
           </div>

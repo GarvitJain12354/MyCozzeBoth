@@ -71,9 +71,11 @@ const RentRecipt = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 w-full">
               <InputCustom
                 name="landlordPan"
+                className="uppercase"
                 title="Landlord PAN (Optional)"
                 placeholder="Enter landlord PAN"
-                type={"number"}
+                type={"text"}
+                max={10}
               />
               <InputCustom
                 name="receiptStartDate"
@@ -98,6 +100,7 @@ const RentRecipt = () => {
                 title="Tenant Mobile"
                 placeholder="Enter Tenant Mobile"
                 type={"number"}
+                max={10}
               />
               <InputCustom
                 name="email"
