@@ -24,6 +24,7 @@ const AdminPlans = () => {
     (state) => state.Admin
   ); // Adjust according to your state structure
   const [currentPage, setCurrentPage] = useState(1);
+  const [editPlan, seteditPlan] = useState("");
   const itemsPerPage = 10;
   const [addSales, setaddSales] = useState(false);
   // const { plan } = useSelector((state) => state.Others);
@@ -58,10 +59,9 @@ const AdminPlans = () => {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <div className="w-full h-screen overflow-hidden">
-     <NavBar isOpen={isOpen} setIsOpen={setIsOpen} dashboard={true} />
+      <NavBar isOpen={isOpen} setIsOpen={setIsOpen} dashboard={true} />
       <div className="flex w-full h-[89vh] overflow-hidden translate-y-20">
-      <AdminSidebar title={"Plans"}  isOpen={isOpen}></AdminSidebar>
-
+        <AdminSidebar title={"Plans"} isOpen={isOpen}></AdminSidebar>
 
         {loading ? (
           <Loading />
@@ -71,7 +71,7 @@ const AdminPlans = () => {
               <div className="py-5">
                 <h1 className="text-3xl max-md:text-xl">Sales Person</h1>
               </div>
-              <button
+              {/* <button
                 type="primary"
                 onClick={() => setaddSales(!addSales)}
                 className="flex items-center bg-primary justify-center max-md:px-2 max-md:text-sm px-5 py-1 rounded-lg text-white"
@@ -84,10 +84,10 @@ const AdminPlans = () => {
                 ) : (
                   "Close"
                 )}
-              </button>
+              </button> */}
             </div>
             {addSales ? (
-              <AdminAddPlans setaddSales={setaddSales} />
+              <AdminAddPlans editPlan={editPlan} setaddSales={setaddSales} />
             ) : (
               <>
                 <div className="overflow-x-auto">
@@ -97,6 +97,7 @@ const AdminPlans = () => {
                         <th className="px-6 py-4">S. No.</th>
                         <th className="px-6 py-4">Plan Name</th>
                         <th className="px-6 py-4">Plan For</th>
+                        <th className="px-6 py-4">Offer Price</th>
                         <th className="px-6 py-4">Price</th>
                         <th className="px-6 py-4">Duration</th>
                         <th className="px-6 py-4">Manager Added</th>
@@ -117,13 +118,20 @@ const AdminPlans = () => {
                           <td className="px-6 py-4">{user?.planName}</td>
                           <td className="px-6 py-4">{user?.type}</td>
                           <td className="px-6 py-4">{user?.price}</td>
+                          <td className="px-6 py-4">{user?.realPrice}</td>
 
                           {/* <td className="px-6 py-4">{user?.duration}</td> */}
                           <td className="px-6 py-4">{user?.days}</td>
                           <td className="px-6 py-4">
                             {user?.manager ? "Yes" : "No"}
                           </td>
-                          <td className="px-6 py-4 cursor-pointer">
+                          <td
+                            className="px-6 py-4 cursor-pointer"
+                            onClick={() => {
+                              seteditPlan(user);
+                              setaddSales(true);
+                            }}
+                          >
                             <i className="ri-edit-fill"></i>
                           </td>
                           <td className="px-6 py-4">

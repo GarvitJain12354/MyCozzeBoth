@@ -78,7 +78,7 @@ const City = () => {
       <>
         {loading && <Loading />}
 
-        <div className="w-full h-[76vh] max-md:min-h-[100vh] text-white gap-6 relative flex flex-col items-center justify-center max-md:gap-2 max-md:px-10">
+        <div className="w-full h-[65vh] max-md:min-h-[100vh] text-white gap-6 relative flex flex-col items-center justify-end pb-10 max-md:gap-2 max-md:px-10">
           <div className="overlayCity z-10 "></div>
           {loadingImage && (
             <Skeleton className="h-full absolute bg-black z-50 top-0 left-0 w-full" />

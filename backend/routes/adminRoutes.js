@@ -27,6 +27,9 @@ const {
   getFlatematesGraphData,
   getAllFlat,
   getYearlyUserData,
+  createOffer,
+  updateOffer,
+  updateOfferImage,
 } = require("../controllers/adminController");
 const { resetPassword } = require("../controllers/indexController");
 const { authorizeRoles } = require("../jwt/sendToken");
@@ -211,4 +214,7 @@ router.get(
 );
 router.get("/dashboard/users", isAuthenticated, authorizeRoles("superAdmin"),getYearlyUserData);
 
+// router.post("/create/offer",isAuthenticated,authorizeRoles("superAdmin"),createOffer)
+router.post("/update/offer/text",isAuthenticated,authorizeRoles("superAdmin"),updateOffer)
+router.post("/update/offer/image",isAuthenticated,authorizeRoles("superAdmin"),updateOfferImage)
 module.exports = router;

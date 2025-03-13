@@ -17,7 +17,7 @@ const RentRecipt = () => {
       toast.error("Invalid Phone number");
       return;
     }
-    const panRegex = /^[1-9][0-9]{2}\s?[0-9]{3}$/;
+    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
 
     if (!panRegex.test(e.target.landlordPan.value)) {
       toast.error("Invalid PAN Card Number");
@@ -36,6 +36,8 @@ const RentRecipt = () => {
     };
 
     setdata(fdata);
+
+
     // Use `data` as needed, e.g., send it to an API or process it further
   };
 
@@ -124,7 +126,7 @@ const RentRecipt = () => {
               </button>
             </div>
           </form>
-          {data && <GeneratedReceipt data={data} />}
+          {data && <GeneratedReceipt setdata={setdata} data={data} />}
         </div>
       </div>
       <Footer />

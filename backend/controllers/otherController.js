@@ -124,6 +124,13 @@ const getBudgetRange = (budget) => {
 
   return null;
 };
+const getCityAndState = (location) => {
+  const parts = location.split(","); // Split address by commas
+  const city = parts.length > 1 ? parts[0].trim() : null; // First part as city
+  const state = parts.length > 2 ? parts[parts.length - 2].trim() : null; // Second last as state
+  return { city, state };
+};
+
 exports.getFilterData = CatchAsyncErrors(async (req, res, next) => {
   const { type, location, budget, gender } = req.query;
 
@@ -135,14 +142,18 @@ exports.getFilterData = CatchAsyncErrors(async (req, res, next) => {
     if (gender && gender !== "Any") {
       query.gender = gender;
     }
+
     if (location && location !== "Select a city") {
-      query.city = location;
+      query.location = location;
     }
 
     const budgetRange = getBudgetRange(budget);
     if (budgetRange) {
       query.approxRent = { $gte: budgetRange.min, $lte: budgetRange.max };
     }
+
+    const listn = await Listing.find();
+    console.log(listn, 324);
 
     const list = await Listing.find(query).populate("user");
     return res.json({ success: true, data: list });
@@ -152,8 +163,9 @@ exports.getFilterData = CatchAsyncErrors(async (req, res, next) => {
     query.status = "Published";
 
     if (location && location !== "Select a city") {
-      query.city = location;
+      query.location = location;
     }
+
     if (gender && gender !== "Any") {
       query.gender = gender;
     }
@@ -183,6 +195,44 @@ exports.getFilterData = CatchAsyncErrors(async (req, res, next) => {
     }
 
     const list = await Room.find(query).populate("owner");
+    return res.json({ success: true, data: list });
+  }
+  if (type === "Flat") {
+    query.status = "Published";
+
+    if (location && location !== "Select a city") {
+      query.location = location;
+    }
+
+    if (gender && gender !== "Any") {
+      query.gender = gender;
+    }
+
+    const budgetRange = getBudgetRange(budget);
+    if (budgetRange) {
+      query.$or = [
+        {
+          "rent.single": {
+            $gte: String(budgetRange.min),
+            $lte: String(budgetRange.max),
+          },
+        },
+        {
+          "rent.double": {
+            $gte: String(budgetRange.min),
+            $lte: String(budgetRange.max),
+          },
+        },
+        {
+          "rent.triple": {
+            $gte: String(budgetRange.min),
+            $lte: String(budgetRange.max),
+          },
+        },
+      ];
+    }
+    query.isFlat = true;
+    const list = await Listing.find(query).populate("owner");
     return res.json({ success: true, data: list });
   }
 

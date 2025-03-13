@@ -23,6 +23,10 @@ const planModel = new mongoose.Schema(
       type: String,
       enum: ["Roommate", "PG", "Flat"],
     },
+    realPrice:{
+      type:Number,
+      default:0
+    },
     users: [
       {
         type: mongoose.Schema.Types.ObjectId,

@@ -17,7 +17,7 @@ const AdminTestimonal = () => {
   const { testimonial } = useSelector((state) => state.Others);
   const dispatch = useDispatch();
   const { loading } = useSelector((state) => state.Others);
-  const {  message, error } = useSelector((state) => state.Admin);
+  const { message, error } = useSelector((state) => state.Admin);
 
   useEffect(() => {
     dispatch(getAllTestimonial());
@@ -36,16 +36,19 @@ const AdminTestimonal = () => {
   }, [message, error]);
 
   console.log(testimonial);
-  const handleDelete = (id)=>{
-    dispatch(deleteTestimonials(id))
-  }
+  const handleDelete = (id) => {
+    dispatch(deleteTestimonials(id));
+  };
   const [isOpen, setIsOpen] = useState(false);
   return (
     <>
       <div className="w-full h-screen overflow-hidden">
-      <NavBar isOpen={isOpen} setIsOpen={setIsOpen} dashboard={true} />
+        <NavBar isOpen={isOpen} setIsOpen={setIsOpen} dashboard={true} />
         <div className="flex w-full h-[89vh] overflow-hidden translate-y-20">
-        <AdminSidebar title={"Add Testimonials"}  isOpen={isOpen}></AdminSidebar>
+          <AdminSidebar
+            title={"Add Testimonials"}
+            isOpen={isOpen}
+          ></AdminSidebar>
 
           {loading ? (
             <Loading />
@@ -54,7 +57,9 @@ const AdminTestimonal = () => {
               <div className="w-full px-5 h-full overflow-y-auto ">
                 <div className="w-full flex items-center justify-between ">
                   <div className="py-5">
-                    <h1 className="text-3xl max-md:text-text-xl">Testimonials</h1>
+                    <h1 className="text-3xl max-md:text-text-xl">
+                      Testimonials
+                    </h1>
                   </div>
                   <button
                     type="primary"
@@ -73,11 +78,60 @@ const AdminTestimonal = () => {
                 </div>
                 {openAdd ? (
                   <AddTestimonial setopenAdd={setopenAdd} />
+                ) : // <div className="grid max-md:grid-cols-1 gap-5 grid-cols-2">
+                //   {testimonial?.map((i, index) => (
+                //     <Testimonials handleDelete={handleDelete} admin={true} data={i} key={index} />
+                //   ))}
+                // </div>
+                loading ? (
+                  <Loading />
                 ) : (
-                  <div className="grid max-md:grid-cols-1 gap-5 grid-cols-2">
-                    {testimonial?.map((i, index) => (
-                      <Testimonials handleDelete={handleDelete} admin={true} data={i} key={index} />
-                    ))}
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full text-left text-sm font-light">
+                      <thead className="bg-gray-100 border-b">
+                        <tr>
+                          <th className="px-6 py-4">Testimonial Image</th>
+                          <th className="px-6 py-4">Description</th>
+                          <th className="px-6 py-4">Name</th>
+                          <th className="px-6 py-4">Designation</th>
+                          <th className="px-6 py-4">Delete</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {testimonial?.map((i, index) => (
+                          <tr key={index} className="border-b">
+                            <td className="px-6 py-4">
+                              <img
+                                src={`${i?.image?.url}`}
+                                alt="profile"
+                                className=" object-contain border border-red-500 h-[5rem] w-[5rem] rounded-full bg-green-200"
+                              />
+                            </td>
+                            <td className="px-6 py-4">{i?.description}</td>
+                            <td className="px-6 py-4">{i?.name}</td>
+                            <td className="px-6 py-4">
+                              {i?.designation}
+                              {/* {formatDate(i?.startDate)} */}
+                            </td>
+                            <td className="px-6 py-4">
+                              <button onClick={() => handleDelete(i?._id)}>
+                                Delete
+                              </button>
+                              {/* {formatDate(i?.endDate)} */}
+                            </td>
+
+                            {/* <td className="px-6 py-4 relative">
+                              <AdminPgDropdown
+                                data={i?.refundStatus}
+                                id={i?._id}
+                                d={i}
+                                options={options}
+                              />
+                            </td> */}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 )}
               </div>

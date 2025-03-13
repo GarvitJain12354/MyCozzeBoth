@@ -75,7 +75,7 @@ const AdminListing = () => {
     <div className="w-full h-screen overflow-hidden">
       <NavBar isOpen={isOpen} setIsOpen={setIsOpen} dashboard={true} />
       <div className="flex w-full h-[89vh] overflow-hidden translate-y-20">
-        <AdminSidebar title={"Listing"} isOpen={isOpen} />
+        <AdminSidebar title={"Tenant"} isOpen={isOpen} />
 
         {loading ? (
           <Loading />

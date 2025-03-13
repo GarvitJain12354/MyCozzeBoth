@@ -7,6 +7,7 @@ import {
   PDFDownloadLink,
   StyleSheet,
 } from "@react-pdf/renderer";
+import { Icon } from "@iconify-icon/react/dist/iconify.js";
 
 const styles = StyleSheet.create({
   page: {
@@ -109,7 +110,7 @@ const MyDocument = ({ monthlyData, landlordName, address }) => (
   </Document>
 );
 
-const GeneratedReceipt = ({ data }) => {
+const GeneratedReceipt = ({ data, setdata }) => {
   const {
     landlordName,
     rentAmount,
@@ -154,7 +155,8 @@ const GeneratedReceipt = ({ data }) => {
         ) : (
           <button
             type="submit"
-            className="px-2 text-lg sm:text-xl bg-[#bc2c3d] flex justify-center items-center text-white py-3 rounded-xl"
+            onClick={()=>setdata("")}
+            className="px-2 text-lg sm:text-xl mx-auto bg-[#bc2c3d] flex justify-center items-center text-white py-3 rounded-xl"
           >
             Download Now
             <Icon icon="iconamoon:arrow-right-2-thin" width={35} />

@@ -5,6 +5,7 @@ import { assignPlan } from "../../store/Action/User";
 import RazorpayPayment from "../../Pages/PaymentDemo";
 import { toast } from "react-toastify";
 import Loading from "../Loading";
+import gsap from "gsap";
 
 const PricingCard = ({ data, isHighlighted }) => {
   const dispatch = useDispatch();
@@ -18,6 +19,38 @@ const PricingCard = ({ data, isHighlighted }) => {
     // toast.success("Hello")
     dispatch(assignPlan(dets));
   };
+  const priceAnimation = (i) => {
+    setsize(`${i?.value}`);
+    gsap.from(".selling", {
+      opacity: 0,
+      duration: 0.5,
+    });
+    gsap.to(".line", {
+      width: "95%",
+      duration: 1,
+    });
+    gsap.to("#skl", {
+      backgroundColor: "transparent",
+      delay: 2,
+      duration: 1,
+    });
+  };
+
+  useEffect(() => {
+    gsap.from(".selling", {
+      opacity: 1,
+      duration: 0.5,
+    });
+    gsap.to(".line", {
+      width: "95%",
+      duration: 1,
+    });
+    gsap.to("#skl", {
+      backgroundColor: "transparent",
+      delay: 2,
+      duration: 1,
+    });
+  }, [data]);
   return (
     <div
       className={`w-[23rem] overflow-hidden flex justify-start items-center flex-col  bg-white rounded-lg shadow-md ${
@@ -33,7 +66,26 @@ const PricingCard = ({ data, isHighlighted }) => {
         <h3 className={`text-xl font-bold mb-8 ${isHighlighted ? "mt-4" : ""}`}>
           {data?.planName}
         </h3>
-        <p className="text-6xl font-bold">₹ {data?.price}</p>
+        {/* <p className="text-6xl font-bold">₹ {data?.price}</p> */}
+        <div className="flex items-center gap- flex-col">
+          <h2 className="text-xl relative z-20">
+            ₹{data?.realPrice}
+            .00
+            <span
+              className="line w-[0%] h-[2px] -rotate-[8deg] bg-orange-500 absolute top-1/2 left-0"
+              style={{ transformOrigin: "left bottom" }}
+            ></span>
+          </h2>
+          <div
+            id="skl"
+            className="skeleton h-fit w-fit rounded-none opacity-100"
+          >
+            <h2 className="selling text-4xl opacity-100">
+              ₹{data?.price}
+              .00
+            </h2>
+          </div>
+        </div>
         <p className="text-sm mt-5">for {data?.days} days</p>
       </div>
       <ul className="my-6 px-10 text-gray-700  w-full">

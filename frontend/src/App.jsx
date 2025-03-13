@@ -49,6 +49,7 @@ import Owners from "../Pages/admin/Owners";
 import TroubleShoot from "../Pages/TroubleShoot";
 import FlatOwner from "../Pages/admin/FlatOwner";
 import ListingPage from "../Pages/ListingPage";
+import AdminOffer from "../Pages/admin/AdminOffer";
 // import ViewCities from "../Pages/viewcities/ViewCities";
 // import UserDetailPage from "../Pages/UserDetailPage";
 function App() {
@@ -59,7 +60,6 @@ function App() {
     dispatch(isUser());
   }, []);
 
-  console.log(isAuthenticated, user);
   useLayoutEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -165,6 +165,7 @@ function App() {
             <Route path="admin/pg" element={<AdminPgRooms />} />
             <Route path="admin/salesperson" element={<SalesPerson />} />
             <Route path="admin/plans" element={<AdminPlans />} />
+            <Route path="admin/offers" element={<AdminOffer />} />
             <Route path="admin/city" element={<AdminCity />} />
             <Route path="admin/testimonial" element={<AdminTestimonal />} />
             <Route path="admin/refund" element={<AdminRequestRefund />} />

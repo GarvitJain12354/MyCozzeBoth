@@ -16,6 +16,7 @@ import {
   getSalesPersonSuccess,
   getUserDetailSuccess,
   getUserSuccess,
+  offerSuccess,
   registerSalesPersonSuccess,
   statusRefundAdminSuccess,
   updatePlanSuccess,
@@ -280,3 +281,35 @@ export const getAdminFlatMateDetails =
       dispatch(adminFail(error.response.data));
     }
   };
+
+export const createOffer = () => async (dispatch) => {
+  dispatch(adminRequest());
+  try {
+    const { data } = await axios.post(`/admin/create/offer`);
+
+    // dispatch(getDashboardListingSuccess(data));
+  } catch (error) {
+    dispatch(adminFail(error.response.data));
+  }
+};
+export const updateOffertext = (dets) => async (dispatch) => {
+  dispatch(adminRequest());
+  try {
+    const { data } = await axios.post(`/admin/update/offer/text`, dets);
+    dispatch(offerSuccess(data));
+    // dispatch(getDashboardListingSuccess(data));
+  } catch (error) {
+    dispatch(adminFail(error.response.data));
+  }
+};
+
+export const updateOfferImage = (dets) => async (dispatch) => {
+  dispatch(adminRequest());
+  try {
+    const { data } = await axios.post(`/admin/update/offer/image`, dets);
+    dispatch(offerSuccess(data));
+    // dispatch(getDashboardListingSuccess(data));
+  } catch (error) {
+    dispatch(adminFail(error.response.data));
+  }
+};

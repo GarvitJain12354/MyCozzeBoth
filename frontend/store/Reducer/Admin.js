@@ -22,7 +22,7 @@ export const Admin = createSlice({
     },
     getFlatOwnerSuccess: (state, action) => {
       (state.loading = false),
-      (state.flatOwner = action.payload.users),
+        (state.flatOwner = action.payload.users),
         (state.totalPages = action.payload.totalPages);
     },
     getListingSuccess: (state, action) => {
@@ -89,8 +89,7 @@ export const Admin = createSlice({
     },
     getDashboardListingSuccess: (state, action) => {
       (state.loading = false),
-      
-      state.dashboardlisting = action.payload.data,
+        (state.dashboardlisting = action.payload.data),
         (state.message = action.payload.message);
     },
     adminFail: (state, action) => {
@@ -100,6 +99,9 @@ export const Admin = createSlice({
       state.loading = false;
       state.flatgraph = action.payload.data;
       state.message = action.payload.message;
+    },
+    offerSuccess: (state, action) => {
+      (state.message = action.payload.message), (state.loading = false);
     },
     clearAdminMessage: (state, action) => {
       state.message = null;
@@ -133,6 +135,7 @@ export const {
   getDashboardDetailsSuccess,
   getDashboardListingSuccess,
   getAdminFlatMateDetailsSuccess,
-  getFlatOwnerSuccess
+  getFlatOwnerSuccess,
+  offerSuccess,
 } = Admin.actions;
 export default Admin.reducer;

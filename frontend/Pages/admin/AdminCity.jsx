@@ -23,9 +23,9 @@ const AdminCity = () => {
   const dispatch = useDispatch();
   const { pg, totalPages, loading, error, message } = useSelector(
     (state) => state.Admin
-  ); // Adjust according to your state structure
+  ); 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10; // Number of rows per page
+  const itemsPerPage = 10; 
   const { city } = useSelector((state) => state.Others);
   useEffect(() => {
     dispatch(getAllCity());
@@ -67,9 +67,9 @@ const AdminCity = () => {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <div className="w-full h-screen overflow-hidden">
-     <NavBar isOpen={isOpen} setIsOpen={setIsOpen} dashboard={true} />
+      <NavBar isOpen={isOpen} setIsOpen={setIsOpen} dashboard={true} />
       <div className="flex w-full h-[89vh] overflow-hidden translate-y-20">
-      <AdminSidebar title={"City"}  isOpen={isOpen}></AdminSidebar>
+        <AdminSidebar title={"City"} isOpen={isOpen}></AdminSidebar>
 
         {loading ? (
           <Loading />

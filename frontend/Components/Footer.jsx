@@ -43,6 +43,8 @@ const Footer = () => {
               Ashokanagar Road, Guna Madhya Pradesh, 473331
             </p>
             <p className="text-sm md:text-base">mycozee1@gmail.com</p>
+            <p className="text-sm md:text-base">+91 9993054384</p>
+
             <NavLink
               to={"/contactus"}
               className="bgRed px-6 md:px-6 py-2 rounded-full text-white text-base max-md:text-sm max-md:-ml-1"
@@ -149,7 +151,7 @@ const Footer = () => {
 
         <div className="w-full flex flex-col md:flex-row justify-between items-center py-5 px-0">
           <h1 className=" text-sm md:text-base">
-            Designed by{" "}
+            Developed by{" "}
             <span className="font-semibold">Tryidol Technologies</span>
           </h1>
           <button
@@ -166,7 +168,8 @@ const Footer = () => {
             />
           </button>
           <h1 className="text-center text-sm md:text-base mt-4 md:mt-0">
-            <i className="ri-at-line red"></i> 2024 Cozee All Rights Reserved
+            <i className="ri-at-line red"></i> 2025 FOODFOND BEVERAGES PVT. LTD.
+            All Rights Reserved
           </h1>
         </div>
 

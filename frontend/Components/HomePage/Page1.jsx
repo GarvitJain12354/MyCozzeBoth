@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import Typed from "typed.js";
 import axios from "axios";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getLocationSearch } from "../../store/Action/User";
 import FilterChip from "../FilterChip";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { Icon } from "@iconify-icon/react/dist/iconify.js";
+import { getAllCity } from "../../store/Action/Others";
 
 const Page1 = ({ type, settype, search, user }) => {
   const el = useRef(null);
@@ -13,10 +15,10 @@ const Page1 = ({ type, settype, search, user }) => {
   const [showDropdown, setShowDropdown] = useState(false); // Control dropdown visibility
   const dropdownRef = useRef(null);
   const [filterType, setfilterType] = useState("Roommate");
-
+  const { city } = useSelector((state) => state.Others);
   useEffect(() => {
     const typed = new Typed("#text", {
-      strings: ["Roommate", "Flats", "PGs"],
+      strings: ["Roommate", "Rooms", "PGs"],
       typeSpeed: 60,
       loop: true,
       backSpeed: 50,
@@ -90,7 +92,7 @@ const Page1 = ({ type, settype, search, user }) => {
         setShowDropdown(false);
       }
     }
-
+    dispatch(getAllCity());
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -132,12 +134,27 @@ const Page1 = ({ type, settype, search, user }) => {
         posting rooms, PGs you can't find anywhere else. Stop stressing and let
         us help you find the right fit.
       </h3>
-
-      <FilterChip
-        search={handleClick}
-        type={filterType}
-        settype={setfilterType}
-      />
+      <div className="flex flex-col items-center gap-3 text-[#bc2c3d] font-light cursor-pointer">
+        <FilterChip
+          search={handleClick}
+          type={filterType}
+          settype={setfilterType}
+        />
+        <div className="flex items-center justify-center cursor-pointer z-10">
+          {city?.slice(0,5)?.map((i, ind) => (
+            <NavLink to={`/city/${i._id}/${i.name}`}>{i?.name} ,</NavLink>
+          ))}
+          {/* <NavLink to={"/city/mumbai"}>Mumbai ,</NavLink>
+          <NavLink to={"/city/noida"}>Noida ,</NavLink> */}
+          <NavLink to={"/viewcities"}>
+            <Icon
+              icon="solar:alt-arrow-right-line-duotone"
+              width="24"
+              height="24"
+            />
+          </NavLink>
+        </div>
+      </div>
 
       {/* Background Images */}
       <img

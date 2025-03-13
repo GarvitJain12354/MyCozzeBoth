@@ -21,6 +21,8 @@ import { getAllMatches } from "../store/Action/User";
 import PricingPage from "../Components/priceingcard/Pricingcard";
 import Loading from "../Components/Loading";
 import RazorpayPayment from "./PaymentDemo";
+import HomePage2 from "../Components/HomePage/HomePage2";
+import HomePage3 from "../Components/HomePage/HomePage3";
 
 export function FluentBuildingBankLink24Regular(props) {
   return (
@@ -130,13 +132,15 @@ const HomePage = () => {
             type={filterType}
             settype={setfilterType}
           />
-          <Page2
+          {/* <Page2
             data={filterData}
             loading={loading}
             type={filterType}
             settype={setfilterType}
             userShow={user?.role === "owner" && true}
-          />
+          /> */}
+          <HomePage2/>
+          <HomePage3/>
           <Page3F />
           <Page4F />
         </>

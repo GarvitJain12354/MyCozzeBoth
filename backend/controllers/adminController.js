@@ -13,6 +13,7 @@ const Plan = require("../models/planModel.js");
 const Testimonial = require("../models/testimonialModel.js");
 const { default: mongoose } = require("mongoose");
 const moment = require("moment");
+const Offer = require("../models/offerModel.js");
 const imagekit = require("../middlewares/imagekit").initimagekit();
 
 exports.admin = CatchAsyncErrors(async (req, res, next) => {
@@ -491,7 +492,7 @@ exports.editPlan = CatchAsyncErrors(async (req, res, next) => {
   // const dets = { ...req.body, description: JSON.parse(req.body.description) };
   const plan = await Plan.findByIdAndUpdate(req.params.id, req.body);
   res.status(201).json({
-    message: "Plan added successfully",
+    message: "Plan Updated successfully",
   });
 });
 
@@ -704,7 +705,8 @@ exports.dashboardDetails = CatchAsyncErrors(async (req, res, next) => {
         if (!startDate || !endDate) {
           return res.status(400).json({
             success: false,
-            message: "Please provide both startDate and endDate for custom range.",
+            message:
+              "Please provide both startDate and endDate for custom range.",
           });
         }
         calculateData(startDate, endDate);
@@ -712,7 +714,8 @@ exports.dashboardDetails = CatchAsyncErrors(async (req, res, next) => {
       default:
         return res.status(400).json({
           success: false,
-          message: "Invalid filter type. Use 'Daily', 'Weekly', 'Monthly', 'Yearly', or 'Custom Date'.",
+          message:
+            "Invalid filter type. Use 'Daily', 'Weekly', 'Monthly', 'Yearly', or 'Custom Date'.",
         });
     }
 
@@ -729,7 +732,6 @@ exports.dashboardDetails = CatchAsyncErrors(async (req, res, next) => {
     next(error);
   }
 });
-
 
 exports.getFlatematesGraphData = CatchAsyncErrors(async (req, res, next) => {
   try {
@@ -865,3 +867,45 @@ exports.getYearlyUserData = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+exports.createOffer = CatchAsyncErrors(async (req, res, next) => {
+  try {
+    const offer = await new Offer().save();
+    res.status(201).json({
+      message: "offer created",
+      offer,
+    });
+  } catch (error) {}
+});
+exports.updateOffer = CatchAsyncErrors(async (req, res, next) => {
+  try {
+    const offer = await Offer.findOne();
+    offer.text = req.body.text;
+    await offer.save();
+    res.status(201).json({
+      message: "Offer Text saved successfully",
+      offer,
+    });
+  } catch (error) {}
+});
+
+exports.updateOfferImage = CatchAsyncErrors(async (req, res, next) => {
+  try {
+    const offer = await Offer.findOne();
+    const file = req.files.image;
+
+    const modifiedFileName = `bannerImage-${Date.now()}${path.extname(
+      file.name
+    )}`;
+    const { fileId, url } = await imagekit.upload({
+      file: file.data,
+      fileName: modifiedFileName,
+    });
+    offer.banner = { fileId, url };
+    await offer.save();
+    res.status(201).json({
+      message: "Offer banner saved successfully",
+      offer,
+    });
+  } catch (error) {}
+});
