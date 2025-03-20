@@ -35,7 +35,7 @@ const userModel = new mongoose.Schema(
     role: {
       type: String,
       required: [true, "Role of the user is required"],
-      enum: ["flatemate", "owner", "admin", "superAdmin"],
+      enum: ["flatemate", "owner", "admin", "superAdmin", "manager"],
     },
     gender: {
       type: String,
@@ -164,6 +164,12 @@ const userModel = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Team",
+      },
+    ],
+    assignedUsers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
       },
     ],
   },

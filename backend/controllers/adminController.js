@@ -396,6 +396,74 @@ exports.createSalesPerson = CatchAsyncErrors(async (req, res, next) => {
     message: "Sales Person Added Successfully",
   });
 });
+// GET ALL Managers with pagination
+exports.getAllManagers = CatchAsyncErrors(async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
+    const limit = parseInt(req.query.limit) || 10; // Default to 10 users per page
+    const skip = (page - 1) * limit;
+
+    const users = await User.find({ role: "manager" }).skip(skip).limit(limit);
+
+    const totalUsers = await User.countDocuments({ role: "manager" });
+    const totalPages = Math.ceil(totalUsers / limit);
+
+    res.status(200).json({
+      users,
+      totalPages,
+      currentPage: page,
+      totalUsers,
+    });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+});
+// GET Manager by id
+exports.getManagerById = CatchAsyncErrors(async (req, res, next) => {
+  const manager = await User.findById(req.params.id).populate("assignedUsers");
+  if (!manager) {
+    res.status(500).json({
+      message: "No User find",
+    });
+  }
+  res.status(200).json({
+    manager,
+  });
+});
+// ASSIGN USER TO MANAGER
+exports.assignUserToManager = CatchAsyncErrors(async (req, res, next) => {
+  const { user } = req.body; // Expecting an array of user IDs
+  const managerId = req.params.id;
+
+  // Convert string IDs to ObjectIds
+  const objectIds = user.map((id) => new mongoose.Types.ObjectId(id));
+  console.log(objectIds);
+  const updatedManager = await User.findByIdAndUpdate(
+    managerId,
+    { $set: { assignedUsers: objectIds } },
+    { new: true }
+  );
+
+  res.status(200).json({ success: true, data: updatedManager,message:"Users assigned successfully to manager" });
+});
+// CREATE Manager
+exports.createManager = CatchAsyncErrors(async (req, res, next) => {
+  var generatedPassword = generator.generate({
+    length: 10,
+    numbers: true,
+  });
+  const dets = {
+    password: generatedPassword,
+    contact: Number(req.body.contact),
+    ...req.body,
+  };
+
+  const manager = await new User(dets).save();
+  res.status(201).json({
+    manager,
+    message: "Manager Added Successfully",
+  });
+});
 // UPDATE SALESPERSON
 exports.changeSalesStatus = CatchAsyncErrors(async (req, res, next) => {
   try {
@@ -422,7 +490,32 @@ exports.changeSalesStatus = CatchAsyncErrors(async (req, res, next) => {
     });
   }
 });
+// UPDATE MANAGERS
+exports.changeManagerStatus = CatchAsyncErrors(async (req, res, next) => {
+  try {
+    var generatedPassword = generator.generate({
+      length: 10,
+      numbers: true,
+    });
+    const manager = await User.findById(req.params.id).select("+password");
+    manager.isVerified = !manager.isVerified;
+    manager.password = generatedPassword;
+    await manager.save();
+    if (manager.isVerified) {
+      sendmailPassword(req, res, next, generatedPassword, manager);
+    } else {
+      res.status(200).json({
+        message: "Manager Status updated successfully",
+      });
+    }
+  } catch (error) {
+    console.log(error);
 
+    res.json({
+      error,
+    });
+  }
+});
 exports.uploadCity = CatchAsyncErrors(async (req, res, next) => {
   try {
     const city = await new City(req.body).save();

@@ -30,6 +30,11 @@ const {
   createOffer,
   updateOffer,
   updateOfferImage,
+  createManager,
+  getAllManagers,
+  changeManagerStatus,
+  getManagerById,
+  assignUserToManager,
 } = require("../controllers/adminController");
 const { resetPassword } = require("../controllers/indexController");
 const { authorizeRoles } = require("../jwt/sendToken");
@@ -114,7 +119,27 @@ router.get(
   authorizeRoles("superAdmin"),
   getAllSalesPerson
 );
-
+// get all Managers
+router.get(
+  "/get/managers",
+  isAuthenticated,
+  authorizeRoles("superAdmin"),
+  getAllManagers
+);
+// get Manager by id
+router.get(
+  "/get/manager/:id",
+  isAuthenticated,
+  authorizeRoles("superAdmin"),
+  getManagerById
+);
+// assign user to Manager
+router.post(
+  "/assign/manager/:id",
+  isAuthenticated,
+  authorizeRoles("superAdmin"),
+  assignUserToManager
+);
 // create Salesperson
 router.post(
   "/register/sales",
@@ -122,13 +147,26 @@ router.post(
   authorizeRoles("superAdmin"),
   createSalesPerson
 );
-
+// create Manager
+router.post(
+  "/register/manager",
+  isAuthenticated,
+  authorizeRoles("superAdmin"),
+  createManager
+);
 // Update Salesperson
 router.get(
   "/update/status/sales/:id",
   isAuthenticated,
   authorizeRoles("superAdmin"),
   changeSalesStatus
+);
+// Update Manager
+router.get(
+  "/update/status/manager/:id",
+  isAuthenticated,
+  authorizeRoles("superAdmin"),
+  changeManagerStatus
 );
 // UPLOAD CITY
 router.post(
@@ -212,9 +250,24 @@ router.get(
   authorizeRoles("superAdmin"),
   getFlatematesGraphData
 );
-router.get("/dashboard/users", isAuthenticated, authorizeRoles("superAdmin"),getYearlyUserData);
+router.get(
+  "/dashboard/users",
+  isAuthenticated,
+  authorizeRoles("superAdmin"),
+  getYearlyUserData
+);
 
 // router.post("/create/offer",isAuthenticated,authorizeRoles("superAdmin"),createOffer)
-router.post("/update/offer/text",isAuthenticated,authorizeRoles("superAdmin"),updateOffer)
-router.post("/update/offer/image",isAuthenticated,authorizeRoles("superAdmin"),updateOfferImage)
+router.post(
+  "/update/offer/text",
+  isAuthenticated,
+  authorizeRoles("superAdmin"),
+  updateOffer
+);
+router.post(
+  "/update/offer/image",
+  isAuthenticated,
+  authorizeRoles("superAdmin"),
+  updateOfferImage
+);
 module.exports = router;

@@ -48,6 +48,15 @@ export const Admin = createSlice({
         (state.sales = action.payload.users),
         (state.totalPages = action.payload.totalPages);
     },
+    getManagersSuccess: (state, action) => {
+      (state.loading = false),
+        (state.managers = action.payload.users),
+        (state.totalPages = action.payload.totalPages);
+    },
+    getManagerByIdSuccess: (state, action) => {
+      (state.loading = false),
+        (state.manager = action.payload.manager)
+    },
     registerSalesPersonSuccess: (state, action) => {
       (state.loading = false), (state.message = action.payload.message);
     },
@@ -94,11 +103,16 @@ export const Admin = createSlice({
     },
     adminFail: (state, action) => {
       state.loading = false;
+      state.error = action.payload.error
     },
     getAdminFlatMateDetailsSuccess: (state, action) => {
       state.loading = false;
       state.flatgraph = action.payload.data;
       state.message = action.payload.message;
+    },
+    assignManagerSuccess:(state,action)=>{
+       state.message= action.payload.message,
+       state.loading=false
     },
     offerSuccess: (state, action) => {
       (state.message = action.payload.message), (state.loading = false);
@@ -137,5 +151,8 @@ export const {
   getAdminFlatMateDetailsSuccess,
   getFlatOwnerSuccess,
   offerSuccess,
+  getManagersSuccess,
+  getManagerByIdSuccess,
+  assignManagerSuccess
 } = Admin.actions;
 export default Admin.reducer;

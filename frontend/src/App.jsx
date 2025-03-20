@@ -50,6 +50,8 @@ import TroubleShoot from "../Pages/TroubleShoot";
 import FlatOwner from "../Pages/admin/FlatOwner";
 import ListingPage from "../Pages/ListingPage";
 import AdminOffer from "../Pages/admin/AdminOffer";
+import AdminManager from "../Pages/admin/AdminManager";
+import AdminManagerDetail from "../Pages/admin/AdminManagerDetail";
 // import ViewCities from "../Pages/viewcities/ViewCities";
 // import UserDetailPage from "../Pages/UserDetailPage";
 function App() {
@@ -169,6 +171,8 @@ function App() {
             <Route path="admin/city" element={<AdminCity />} />
             <Route path="admin/testimonial" element={<AdminTestimonal />} />
             <Route path="admin/refund" element={<AdminRequestRefund />} />
+            <Route path="admin/managers" element={<AdminManager />} />
+            <Route path="admin/manager/:id" element={<AdminManagerDetail />} />
             {/* <Route path="owner/list" element={<List />} /> */}
           </>
         )}

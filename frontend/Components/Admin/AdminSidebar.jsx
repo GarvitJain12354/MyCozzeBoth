@@ -77,8 +77,9 @@ const sideBarData = [
       {
         title: "Managers",
         icon: "carbon:sales-ops",
-        path: "/admin/salesperson",
+        path: "/admin/managers",
       },
+      
     ],
   },
   {

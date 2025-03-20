@@ -2,6 +2,7 @@ import axios from "../../Axios/axios";
 import {
   adminFail,
   adminRequest,
+  assignManagerSuccess,
   deleteTestimonialAdminSuccess,
   getAdminFlatMateDetailsSuccess,
   getDashboardDetailsSuccess,
@@ -9,6 +10,8 @@ import {
   getFlatOwnerSuccess,
   getFlatsSuccess,
   getListingSuccess,
+  getManagerByIdSuccess,
+  getManagersSuccess,
   getOwnerSuccess,
   getPgSuccess,
   getPlanAdminSuccess,
@@ -125,6 +128,47 @@ export const getAllSalesPerson = (page, limit) => async (dispatch) => {
     dispatch(adminFail(error.response.data));
   }
 };
+export const getAllManagers = (page, limit) => async (dispatch) => {
+  dispatch(adminRequest());
+  try {
+    const { data } = await axios.get(
+      `/admin/get/managers?page=${page}&limit=${limit}`
+    );
+    dispatch(getManagersSuccess(data));
+  } catch (error) {
+    dispatch(adminFail(error.response.data));
+  }
+};
+
+export const getManagerById = (id) => async (dispatch) => {
+  dispatch(adminRequest());
+  try {
+    const { data } = await axios.get(`/admin/get/manager/${id}`);
+    dispatch(getManagerByIdSuccess(data));
+  } catch (error) {
+    dispatch(adminFail(error.response.data));
+  }
+};
+export const registerManagers = (info) => async (dispatch) => {
+  dispatch(adminRequest());
+  try {
+    const { data } = await axios.post(`/admin/register/manager`, info);
+    dispatch(registerSalesPersonSuccess(data));
+  } catch (error) {
+    dispatch(adminFail(error.response.data));
+  }
+};
+
+export const assignUserToManager = (id,dets) => async (dispatch) => {
+  dispatch(adminRequest());
+  try {
+    const { data } = await axios.post(`/admin/assign/manager/${id}`,dets);
+    dispatch(assignManagerSuccess(data));
+  } catch (error) {
+    dispatch(adminFail(error.response.data));
+  }
+
+};
 
 export const registerSalesPerson = (info) => async (dispatch) => {
   dispatch(adminRequest());
@@ -145,7 +189,15 @@ export const updateStatusSalesPerson = (id) => async (dispatch) => {
     dispatch(adminFail(error.response.data));
   }
 };
-
+export const updateStatusManager = (id) => async (dispatch) => {
+  dispatch(adminRequest());
+  try {
+    const { data } = await axios.get(`/admin/update/status/manager/${id}`);
+    dispatch(registerSalesPersonSuccess(data));
+  } catch (error) {
+    dispatch(adminFail(error.response.data));
+  }
+};
 export const uploadCity = (info) => async (dispatch) => {
   dispatch(adminRequest());
   try {
